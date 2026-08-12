@@ -2,7 +2,7 @@ import { Timestamp, FieldValue } from "firebase/firestore";
 
 export type PreferredLanguage = "en" | "bn" | "hi";
 
-export type UserRole = "owner" | "admin" | "manager" | "member";
+export type UserRole = "manager" | "member";
 
 export interface UserProfile {
   uid: string;

@@ -54,7 +54,7 @@ export function HostelProvider({ children }: { children: React.ReactNode }) {
     if (!isFirebaseConfigured) {
       return {
         uid: "demo-user-123",
-        role: "owner",
+        role: "manager",
         status: "active",
         roomNumber: "302",
         studentId: "2024-CSE-091",
@@ -137,9 +137,9 @@ export function HostelProvider({ children }: { children: React.ReactNode }) {
 
   const role = currentMember?.role || null;
   const can = (permission: Permission) => hasPermission(role, permission);
-  const isManager = isManagerialRole(role);
-  const isAdmin = isAdminRole(role);
-  const isOwner = role === "owner";
+  const isManager = (role as string) === "manager" || (role as string) === "owner" || (role as string) === "admin";
+  const isAdmin = (role as string) === "manager" || (role as string) === "owner" || (role as string) === "admin";
+  const isOwner = (role as string) === "manager" || (role as string) === "owner" || (role as string) === "admin";
 
   return (
     <HostelContext.Provider

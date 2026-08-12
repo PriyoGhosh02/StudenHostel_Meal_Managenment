@@ -5,9 +5,10 @@ import {
   getDownloadURL,
   deleteObject,
 } from "firebase/storage";
-import { app } from "./config";
+import { app, isFirebaseConfigured } from "./config";
+import { FirebaseStorage } from "firebase/storage";
 
-export const storage = getStorage(app);
+export const storage = isFirebaseConfigured ? getStorage(app!) : ({} as FirebaseStorage);
 
 export interface UploadOptions {
   contentType?: string;

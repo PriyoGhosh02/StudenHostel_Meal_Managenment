@@ -1,6 +1,7 @@
 import { Timestamp, FieldValue } from "firebase/firestore";
 
 export type NoticePriority = "low" | "medium" | "high" | "urgent";
+export type NoticeExpression = "yes" | "no" | "like" | "dislike";
 
 export interface Notice {
   id: string;
@@ -14,4 +15,5 @@ export interface Notice {
   expiresAt?: Timestamp | FieldValue;
   createdAt: Timestamp | FieldValue;
   updatedAt: Timestamp | FieldValue;
+  votes?: Record<string, { name: string, expression: NoticeExpression }>;
 }

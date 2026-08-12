@@ -14,15 +14,15 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const inputId = id || (label ? label.toLowerCase().replace(/\s+/g, "-") : undefined);
 
     return (
-      <div className="w-full space-y-1.5">
+      <div className="w-full space-y-1.5 font-sans">
         {label && (
-          <label htmlFor={inputId} className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+          <label htmlFor={inputId} className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
             {label}
           </label>
         )}
         <div className="relative rounded-lg shadow-xs">
           {leftIcon && (
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
               {leftIcon}
             </div>
           )}
@@ -31,26 +31,26 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             type={type}
             ref={ref}
             className={cn(
-              "block w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 transition-all duration-200",
+              "block w-full rounded-lg border bg-white dark:bg-slate-850 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 transition-all duration-200",
               leftIcon && "pl-9",
               rightIcon && "pr-9",
               error
-                ? "border-red-400 focus:border-red-500 focus:ring-red-200"
-                : "border-slate-200 focus:border-blue-500 focus:ring-blue-100",
+                ? "border-red-400 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-900/30"
+                : "border-slate-200 dark:border-slate-700 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-100 dark:focus:ring-blue-900/30",
               className
             )}
             {...props}
           />
           {rightIcon && (
-            <div className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400">
+            <div className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 dark:text-slate-500">
               {rightIcon}
             </div>
           )}
         </div>
         {error ? (
-          <p className="text-xs text-red-600 animate-in fade-in duration-200">{error}</p>
+          <p className="text-xs text-red-600 dark:text-red-400 animate-in fade-in duration-200">{error}</p>
         ) : helperText ? (
-          <p className="text-xs text-slate-500">{helperText}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">{helperText}</p>
         ) : null}
       </div>
     );

@@ -1,40 +1,18 @@
 import { UserRole, Permission } from "@/types/user";
 
 export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
-  owner: [
-    "viewDashboard",
-    "manageMembers",
-    "approveJoinRequests",
-    "manageMeals",
-    "manageDeposits",
-    "manageExpenses",
-    "manageBazaar",
-    "manageMonths",
-    "manageReports",
-    "manageSettings",
-    "changeManager",
-  ],
-  admin: [
-    "viewDashboard",
-    "manageMembers",
-    "approveJoinRequests",
-    "manageMeals",
-    "manageDeposits",
-    "manageExpenses",
-    "manageBazaar",
-    "manageMonths",
-    "manageReports",
-    "manageSettings",
-    "changeManager",
-  ],
   manager: [
     "viewDashboard",
+    "manageMembers",
+    "approveJoinRequests",
     "manageMeals",
     "manageDeposits",
     "manageExpenses",
     "manageBazaar",
     "manageMonths",
     "manageReports",
+    "manageSettings",
+    "changeManager",
   ],
   member: [
     "viewDashboard",
@@ -44,22 +22,23 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
 /**
  * Check if a specific role possesses a permission
  */
-export function hasPermission(role: UserRole | undefined | null, permission: Permission): boolean {
+export function hasPermission(role: string | undefined | null, permission: Permission): boolean {
   if (!role) return false;
-  const permissions = ROLE_PERMISSIONS[role];
+  const effectiveRole = (role === "owner" || role === "admin" || role === "manager") ? "manager" : "member";
+  const permissions = ROLE_PERMISSIONS[effectiveRole as UserRole];
   return permissions ? permissions.includes(permission) : false;
 }
 
 /**
- * Check if user is managerial (owner, admin, or manager)
+ * Check if user is managerial (manager)
  */
-export function isManagerialRole(role: UserRole | undefined | null): boolean {
+export function isManagerialRole(role: string | undefined | null): boolean {
   return role === "owner" || role === "admin" || role === "manager";
 }
 
 /**
- * Check if user is admin (owner or admin)
+ * Check if user is admin (manager)
  */
-export function isAdminRole(role: UserRole | undefined | null): boolean {
-  return role === "owner" || role === "admin";
+export function isAdminRole(role: string | undefined | null): boolean {
+  return role === "owner" || role === "admin" || role === "manager";
 }

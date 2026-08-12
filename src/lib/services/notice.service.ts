@@ -2,12 +2,14 @@ import {
   getDocs,
   query,
   setDoc,
+  updateDoc,
+  deleteDoc,
   doc,
   collection,
   serverTimestamp,
 } from "firebase/firestore";
 import { db, noticesCol } from "../firebase/firestore";
-import { Notice } from "@/types/notice";
+import { Notice, NoticeExpression } from "@/types/notice";
 
 export const NoticeService = {
   /**
@@ -31,10 +33,36 @@ export const NoticeService = {
       id: notRef.id,
       hostelId,
       ...params,
+      votes: {},
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     };
     await setDoc(notRef, newNotice);
     return newNotice;
+  },
+
+  /**
+   * Delete a notice
+   */
+  async deleteNotice(hostelId: string, noticeId: string): Promise<void> {
+    const notRef = doc(db, "hostels", hostelId, "notices", noticeId);
+    await deleteDoc(notRef);
+  },
+
+  /**
+   * Submit reaction/vote on a notice
+   */
+  async castVote(
+    hostelId: string,
+    noticeId: string,
+    userId: string,
+    name: string,
+    expression: NoticeExpression
+  ): Promise<void> {
+    const notRef = doc(db, "hostels", hostelId, "notices", noticeId);
+    await updateDoc(notRef, {
+      [`votes.${userId}`]: { name, expression },
+      updatedAt: serverTimestamp(),
+    });
   },
 };

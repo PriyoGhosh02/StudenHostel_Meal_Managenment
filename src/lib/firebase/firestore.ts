@@ -10,7 +10,8 @@ import {
   Timestamp,
   serverTimestamp,
 } from "firebase/firestore";
-import { app } from "./config";
+import { app, isFirebaseConfigured } from "./config";
+import { Firestore } from "firebase/firestore";
 import { UserProfile } from "@/types/user";
 import { Hostel, JoinRequest, HostelMonth } from "@/types/hostel";
 import { HostelMember } from "@/types/member";
@@ -22,7 +23,7 @@ import { Notice } from "@/types/notice";
 import { LedgerTransaction } from "@/types/transaction";
 import { MonthlyReportSummary } from "@/types/report";
 
-export const db = getFirestore(app);
+export const db = isFirebaseConfigured ? getFirestore(app!) : ({} as Firestore);
 
 // Generic Converter
 export const genericConverter = <T extends DocumentData>(): FirestoreDataConverter<T> => ({

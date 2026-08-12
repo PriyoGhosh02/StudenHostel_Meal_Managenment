@@ -20,9 +20,8 @@ export const isFirebaseConfigured = Boolean(
 );
 
 // Initialize Firebase as a singleton instance
-export const app: FirebaseApp =
-  getApps().length > 0
-    ? getApp()
-    : initializeApp(firebaseConfig);
+export const app: FirebaseApp | null = isFirebaseConfigured
+  ? (getApps().length > 0 ? getApp() : initializeApp(firebaseConfig))
+  : null;
 
 export default app;

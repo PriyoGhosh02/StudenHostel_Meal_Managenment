@@ -13,20 +13,40 @@ import { Tabs } from "@/components/ui/Tabs";
 import { User, Building2, Save, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { PreferredLanguage } from "@/types/user";
+import { UserService } from "@/lib/services/user.service";
 
 export default function SettingsPage() {
-  const { user, profile } = useAuth();
+  const { user, profile, isFirebaseConfigured, refreshProfile } = useAuth();
   const { currentHostel, isAdmin } = useHostel();
   const { language, setLanguage, t } = useTranslation();
   const [activeTab, setActiveTab] = useState("profile");
 
-  const [name, setName] = useState(profile?.name || user?.displayName || "Alex Rahman");
-  const [phone, setPhone] = useState(profile?.phone || "+8801700000000");
+  const [name, setName] = useState(profile?.name || user?.displayName || "");
+  const [phone, setPhone] = useState(profile?.phone || "");
   const [hostelName, setHostelName] = useState(currentHostel?.name || "Emerald Green Residence");
+  const [submittingProfile, setSubmittingProfile] = useState(false);
 
-  const handleProfileSave = (e: React.FormEvent) => {
+  const handleProfileSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Profile preferences updated!");
+    if (!name.trim()) {
+      toast.error("Name cannot be empty");
+      return;
+    }
+
+    setSubmittingProfile(true);
+    try {
+      if (isFirebaseConfigured && user) {
+        await UserService.createOrUpdateUser(user.uid, { name, phone, email: user.email || "" });
+        await refreshProfile();
+        toast.success("Profile preferences updated!");
+      } else {
+        toast.success("Demo: Profile preferences updated!");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update profile settings");
+    } finally {
+      setSubmittingProfile(false);
+    }
   };
 
   const handleHostelSave = (e: React.FormEvent) => {
@@ -93,7 +113,7 @@ export default function SettingsPage() {
               </div>
 
               <div className="flex justify-end pt-2">
-                <Button type="submit" leftIcon={<Save className="w-4 h-4" />}>
+                <Button type="submit" leftIcon={<Save className="w-4 h-4" />} isLoading={submittingProfile}>
                   Save Changes
                 </Button>
               </div>

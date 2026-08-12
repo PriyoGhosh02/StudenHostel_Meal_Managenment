@@ -24,82 +24,77 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/hostels/$(hostelId)/members/$(request.auth.uid)).data.role;
     }
 
-    function isHostelOwner(hostelId) {
-      return isHostelMember(hostelId) && getMemberRole(hostelId) == 'owner';
-    }
-
-    function isHostelAdmin(hostelId) {
-      return isHostelMember(hostelId) && 
-        (getMemberRole(hostelId) == 'owner' || getMemberRole(hostelId) == 'admin');
-    }
-
     function isHostelManager(hostelId) {
-      return isHostelMember(hostelId) && 
-        (getMemberRole(hostelId) == 'owner' || getMemberRole(hostelId) == 'admin' || getMemberRole(hostelId) == 'manager');
+      return isHostelMember(hostelId) && getMemberRole(hostelId) == 'manager';
     }
 
     // -------------------------------------------------------------
     // Users Collection
     // -------------------------------------------------------------
     match /users/{userId} {
-      // Any authenticated user can read public user profile details
       allow read: if isAuthenticated();
-      // Only the user themselves can create/update their profile
       allow create, update: if isUser(userId);
-      allow delete: if false; // Profiles are deactivated, not deleted
+      allow delete: if false;
     }
 
     // -------------------------------------------------------------
     // Hostels Collection & Multi-Tenant Subcollections
     // -------------------------------------------------------------
     match /hostels/{hostelId} {
-      // Anyone authenticated can read basic hostel info (e.g. for joining via code)
       allow read: if isAuthenticated();
-      // Any authenticated user can create a hostel (they become the owner)
       allow create: if isAuthenticated() && request.resource.data.ownerId == request.auth.uid;
-      // Only owner/admin can update hostel details or archive
-      allow update: if isHostelAdmin(hostelId);
-      // Only owner can delete
-      allow delete: if isHostelOwner(hostelId);
+      allow update: if isHostelManager(hostelId);
+      allow delete: if isHostelManager(hostelId);
 
       // Members Subcollection
       match /members/{memberId} {
-        // Members of the hostel can read all member profiles in that hostel
         allow read: if isHostelMember(hostelId);
-        // Owner/admin can add/manage members; user can create their own member record during hostel creation
-        allow create: if isAuthenticated() && (request.auth.uid == memberId || isHostelAdmin(hostelId));
-        allow update: if isHostelAdmin(hostelId) || (isUser(memberId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['phone', 'roomNumber', 'studentId', 'university', 'department', 'updatedAt']));
-        allow delete: if isHostelAdmin(hostelId);
+        allow create: if isAuthenticated() && (request.auth.uid == memberId || isHostelManager(hostelId));
+        allow update: if isHostelManager(hostelId) || (isUser(memberId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['phone', 'roomNumber', 'studentId', 'university', 'department', 'updatedAt']));
+        allow delete: if isHostelManager(hostelId);
       }
 
       // Join Requests Subcollection
       match /joinRequests/{requestId} {
-        // Users can read their own request; Managers/Admins can read all requests for their hostel
         allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isHostelManager(hostelId));
-        // Authenticated user can submit a join request
         allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid && request.resource.data.status == 'pending';
-        // Managers/Admins can review (approve/reject) join requests
         allow update: if isHostelManager(hostelId);
-        allow delete: if isHostelAdmin(hostelId) || (resource.data.userId == request.auth.uid && resource.data.status == 'pending');
+        allow delete: if isHostelManager(hostelId) || (resource.data.userId == request.auth.uid && resource.data.status == 'pending');
+      }
+
+      // Approval Requests Subcollection
+      match /approvalRequests/{requestId} {
+        allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isHostelManager(hostelId));
+        allow create: if isHostelMember(hostelId) && request.resource.data.userId == request.auth.uid && request.resource.data.status == 'pending';
+        allow update: if isHostelManager(hostelId);
+        allow delete: if isHostelManager(hostelId);
+      }
+
+      // Group Chat
+      match /groupChat/{messageId} {
+        allow read, create: if isHostelMember(hostelId);
+      }
+
+      // Direct Messages
+      match /directMessages/{channelId}/messages/{messageId} {
+        allow read, create: if isHostelMember(hostelId);
       }
 
       // Months Subcollection
       match /months/{monthId} {
         allow read: if isHostelMember(hostelId);
         allow create, update: if isHostelManager(hostelId);
-        allow delete: if isHostelAdmin(hostelId);
+        allow delete: if isHostelManager(hostelId);
       }
 
       // Notices Subcollection
       match /notices/{noticeId} {
-        allow read: if isHostelMember(hostelId);
-        allow create, update, delete: if isHostelManager(hostelId);
+        allow read, create, update, delete: if isHostelMember(hostelId);
       }
 
       // Meals Subcollection
       match /meals/{mealId} {
         allow read: if isHostelMember(hostelId);
-        // Manager can record/edit all meals; members can toggle their own daily meal entry if permitted
         allow create, update: if isHostelManager(hostelId) || (isHostelMember(hostelId) && request.resource.data.userId == request.auth.uid);
         allow delete: if isHostelManager(hostelId);
       }
@@ -113,10 +108,9 @@ service cloud.firestore {
       // Deposits Subcollection
       match /deposits/{depositId} {
         allow read: if isHostelMember(hostelId);
-        // Managers can approve/record deposits; members can submit their own deposit entry
         allow create: if isHostelManager(hostelId) || (isHostelMember(hostelId) && request.resource.data.userId == request.auth.uid);
         allow update: if isHostelManager(hostelId);
-        allow delete: if isHostelAdmin(hostelId);
+        allow delete: if isHostelManager(hostelId);
       }
 
       // Bazaar Subcollection
@@ -136,7 +130,7 @@ service cloud.firestore {
       match /reports/{reportId} {
         allow read: if isHostelMember(hostelId);
         allow create, update: if isHostelManager(hostelId);
-        allow delete: if isHostelAdmin(hostelId);
+        allow delete: if isHostelManager(hostelId);
       }
     }
   }

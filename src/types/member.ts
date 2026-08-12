@@ -6,6 +6,7 @@ export type MemberStatus = "active" | "pending" | "suspended";
 
 export interface HostelMember {
   uid: string;
+  memberCode?: string;
   role: MemberRole;
   status: MemberStatus;
   roomNumber?: string;

@@ -17,6 +17,7 @@ import {
   monthDoc,
   joinRequestDoc,
   joinRequestsCol,
+  monthsCol,
 } from "../firebase/firestore";
 import { UserService } from "./user.service";
 import { Hostel, JoinRequest, HostelMonth, HostelCurrency } from "@/types/hostel";
@@ -99,7 +100,7 @@ export const HostelService = {
     // 3. Create owner membership record
     const ownerMember: HostelMember = {
       uid: params.ownerId,
-      role: "owner",
+      role: "manager",
       status: "active",
       phone: params.ownerDetails?.phone || "",
       roomNumber: params.ownerDetails?.roomNumber || "",
@@ -217,5 +218,13 @@ export const HostelService = {
     const q = query(joinRequestsCol(hostelId), where("status", "==", "pending"));
     const snap = await getDocs(q);
     return snap.docs.map((d) => d.data() as JoinRequest);
+  },
+
+  /**
+   * Get all months for a hostel
+   */
+  async getMonths(hostelId: string): Promise<HostelMonth[]> {
+    const snap = await getDocs(monthsCol(hostelId));
+    return snap.docs.map((d) => d.data() as HostelMonth);
   },
 };

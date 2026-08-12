@@ -16,6 +16,7 @@ interface LanguageContextType {
   language: PreferredLanguage;
   setLanguage: (lang: PreferredLanguage) => void;
   t: (key: string, fallback?: string) => string;
+  currencySymbol: string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -43,8 +44,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     return dict[key] || dictionaries.en[key] || fallback || key;
   };
 
+  const currencySymbol = language === "bn" ? "৳" : language === "hi" ? "₹" : "$";
+
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t, currencySymbol }}>
       {children}
     </LanguageContext.Provider>
   );

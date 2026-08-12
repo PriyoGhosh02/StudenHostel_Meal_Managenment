@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import { useHostel } from "@/hooks/use-hostel";
 import { useTranslation } from "@/hooks/use-translation";
+import { RequestService } from "@/lib/services/request.service";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { ThemeToggle } from "./ThemeToggle";
 import { Dropdown, DropdownItem } from "@/components/ui/Dropdown";
 import { Badge } from "@/components/ui/Badge";
 import {
@@ -29,9 +31,18 @@ import {
 export function Topbar() {
   const router = useRouter();
   const { user, profile, logout, isFirebaseConfigured, setDemoUser } = useAuth();
-  const { currentHostel, role } = useHostel();
+  const { currentHostel, role, isManager } = useHostel();
   const { t } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (!currentHostel || !isFirebaseConfigured) return;
+    const unsub = RequestService.subscribePendingRequestsCount(currentHostel.id, (cnt) => {
+      setUnreadCount(cnt);
+    });
+    return () => unsub();
+  }, [currentHostel, isFirebaseConfigured]);
 
   const handleLogout = async () => {
     await logout();
@@ -49,7 +60,7 @@ export function Topbar() {
   ];
 
   return (
-    <header className="sticky top-0 z-20 w-full border-b border-slate-200/80 bg-white/90 backdrop-blur-md">
+    <header className="sticky top-0 z-20 w-full border-b border-slate-200/80 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md">
       {/* Dev Mode Banner if Firebase is unconfigured */}
       {!isFirebaseConfigured && (
         <div className="bg-amber-500 text-slate-950 px-4 py-1.5 text-xs font-medium flex items-center justify-between">
@@ -75,7 +86,7 @@ export function Topbar() {
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
+            className="lg:hidden p-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             aria-label="Toggle navigation menu"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -85,7 +96,7 @@ export function Topbar() {
             <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-xs">
               HM
             </div>
-            <span className="font-bold text-slate-900 text-sm truncate max-w-[140px] sm:max-w-xs">
+            <span className="font-bold text-slate-900 dark:text-slate-100 text-sm truncate max-w-[140px] sm:max-w-xs">
               {currentHostel?.name || "HostelMaster"}
             </span>
           </div>
@@ -94,15 +105,22 @@ export function Topbar() {
         {/* Right Side: Language Switcher, Notifications & User Dropdown */}
         <div className="flex items-center gap-3">
           <LanguageSwitcher />
+          <ThemeToggle />
 
-          {/* Notifications Placeholder */}
+          {/* Notifications Link */}
           <Link
-            href="/dashboard/notice"
-            className="p-2 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors relative"
-            title="Notices & Alerts"
+            href={isManager ? "/dashboard/manager" : "/dashboard/notice"}
+            className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors relative"
+            title="Notices & Notifications"
           >
             <Bell className="w-4 h-4" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-blue-600 ring-2 ring-white" />
+            {unreadCount > 0 ? (
+              <span className="absolute -top-1 -right-1 bg-red-600 text-white font-extrabold text-[10px] w-4.5 h-4.5 rounded-full flex items-center justify-center ring-2 ring-white dark:ring-slate-900 animate-pulse">
+                {unreadCount}
+              </span>
+            ) : (
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-blue-600 ring-2 ring-white dark:ring-slate-900" />
+            )}
           </Link>
 
           {/* User Profile Dropdown */}
@@ -110,39 +128,39 @@ export function Topbar() {
             trigger={
               <button
                 type="button"
-                className="flex items-center gap-2 p-1.5 rounded-full hover:bg-slate-100 transition-colors"
+                className="flex items-center gap-2 p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               >
                 {profile?.photoURL ? (
                   <img
                     src={profile.photoURL}
                     alt={profile.name || "User Avatar"}
-                    className="w-8 h-8 rounded-full object-cover border border-slate-200"
+                    className="w-8 h-8 rounded-full object-cover border border-slate-200 dark:border-slate-700"
                   />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs border border-blue-200">
+                  <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 flex items-center justify-center font-bold text-xs border border-blue-200 dark:border-blue-800">
                     {profile?.name?.charAt(0) || user?.email?.charAt(0)?.toUpperCase() || "U"}
                   </div>
                 )}
                 <div className="hidden md:block text-left pr-1">
-                  <p className="text-xs font-semibold text-slate-900 leading-tight">
+                  <p className="text-xs font-semibold text-slate-900 dark:text-slate-100 leading-tight">
                     {profile?.name || user?.displayName || "User"}
                   </p>
-                  <p className="text-[10px] text-slate-500 truncate max-w-[120px]">
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate max-w-[120px]">
                     {user?.email || "No Email"}
                   </p>
                 </div>
               </button>
             }
           >
-            <div className="p-2 border-b border-slate-100">
-              <p className="text-xs font-semibold text-slate-900 truncate">
+            <div className="p-2 border-b border-slate-100 dark:border-slate-800">
+              <p className="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate">
                 {profile?.name || user?.displayName || "User"}
               </p>
-              <p className="text-[11px] text-slate-500 truncate">{user?.email}</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">{user?.email}</p>
               {role && (
                 <div className="mt-1.5">
-                  <Badge variant={role} size="sm">
-                    {role.toUpperCase()}
+                  <Badge variant={((role as string) === "owner" || (role as string) === "admin" || (role as string) === "manager") ? "manager" : "member"} size="sm">
+                    {((role as string) === "owner" || (role as string) === "admin" || (role as string) === "manager") ? "MANAGER" : "MEMBER"}
                   </Badge>
                 </div>
               )}
@@ -161,7 +179,7 @@ export function Topbar() {
               </Link>
             </div>
 
-            <div className="pt-1 border-t border-slate-100">
+            <div className="pt-1 border-t border-slate-100 dark:border-slate-800">
               <DropdownItem
                 icon={<LogOut className="w-4 h-4" />}
                 danger
@@ -176,7 +194,7 @@ export function Topbar() {
 
       {/* Mobile Drawer Menu when open */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-slate-200 bg-white p-4 space-y-1 shadow-lg animate-in slide-in-from-top-2 duration-150">
+        <div className="lg:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 space-y-1 shadow-lg animate-in slide-in-from-top-2 duration-150">
           {navLinks.map((item) => {
             const Icon = item.icon;
             return (
@@ -184,9 +202,9 @@ export function Topbar() {
                 key={item.href}
                 href={item.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-100 transition-colors"
+                className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               >
-                <Icon className="w-4 h-4 text-slate-500" />
+                <Icon className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                 <span>{item.label}</span>
               </Link>
             );

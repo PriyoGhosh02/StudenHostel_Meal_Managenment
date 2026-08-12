@@ -7,6 +7,7 @@ import { useHostel } from "@/hooks/use-hostel";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import { MobileNav } from "./MobileNav";
+import { ChatWidget } from "@/components/chat/ChatWidget";
 import { Loader2 } from "lucide-react";
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
@@ -38,7 +39,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col lg:flex-row">
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0B0F19] flex flex-col lg:flex-row">
       {/* Desktop Sidebar */}
       <Sidebar />
 
@@ -52,6 +53,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
       {/* Mobile Bottom Navigation */}
       <MobileNav />
+
+      {/* Floating Chat Widget */}
+      <ChatWidget />
     </div>
   );
 }

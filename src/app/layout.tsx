@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/context/auth-context";
 import { HostelProvider } from "@/context/hostel-context";
 import { LanguageProvider } from "@/context/language-context";
+import { ThemeProvider } from "@/context/theme-context";
 import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -24,12 +25,14 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <LanguageProvider>
-          <AuthProvider>
-            <HostelProvider>
-              {children}
-              <Toaster position="top-right" richColors />
-            </HostelProvider>
-          </AuthProvider>
+          <ThemeProvider>
+            <AuthProvider>
+              <HostelProvider>
+                {children}
+                <Toaster position="top-right" richColors />
+              </HostelProvider>
+            </AuthProvider>
+          </ThemeProvider>
         </LanguageProvider>
       </body>
     </html>
