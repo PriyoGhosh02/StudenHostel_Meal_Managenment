@@ -1,0 +1,116 @@
+"use client";
+
+import React, { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { useAuth } from "@/hooks/use-auth";
+import { useTranslation } from "@/hooks/use-translation";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { GoogleButton } from "./GoogleButton";
+import { toast } from "sonner";
+import { Mail, Lock, LogIn } from "lucide-react";
+
+const loginSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
+
+export function LoginForm() {
+  const router = useRouter();
+  const { login, isFirebaseConfigured, setDemoUser } = useAuth();
+  const { t } = useTranslation();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = async (data: LoginFormData) => {
+    setIsLoading(true);
+    try {
+      if (!isFirebaseConfigured) {
+        setDemoUser();
+        toast.info("Logged in as Demo User");
+        router.push("/dashboard");
+        return;
+      }
+      await login(data.email, data.password);
+      toast.success("Welcome back!");
+      router.push("/dashboard");
+    } catch (error: unknown) {
+      toast.error((error as Error).message || "Failed to sign in. Please check your credentials.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-5">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <Input
+          label={t("email")}
+          type="email"
+          placeholder="alex@hostel.edu"
+          leftIcon={<Mail className="w-4 h-4" />}
+          error={errors.email?.message}
+          {...register("email")}
+        />
+
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+              {t("password")}
+            </label>
+            <Link
+              href="/forgot-password"
+              className="text-xs text-blue-600 hover:text-blue-700 hover:underline font-medium"
+            >
+              {t("forgot_password")}
+            </Link>
+          </div>
+          <Input
+            type="password"
+            placeholder="••••••••"
+            leftIcon={<Lock className="w-4 h-4" />}
+            error={errors.password?.message}
+            {...register("password")}
+          />
+        </div>
+
+        <Button
+          type="submit"
+          className="w-full justify-center"
+          isLoading={isLoading}
+          leftIcon={<LogIn className="w-4 h-4" />}
+        >
+          {t("login")}
+        </Button>
+      </form>
+
+      <div className="relative my-4">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-slate-200" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-white px-2 text-slate-500 font-medium">Or continue with</span>
+        </div>
+      </div>
+
+      <GoogleButton />
+    </div>
+  );
+}

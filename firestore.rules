@@ -1,0 +1,143 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isUser(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+
+    // Check membership in a hostel
+    function isHostelMember(hostelId) {
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/hostels/$(hostelId)/members/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/hostels/$(hostelId)/members/$(request.auth.uid)).data.status == 'active';
+    }
+
+    // Get member role
+    function getMemberRole(hostelId) {
+      return get(/databases/$(database)/documents/hostels/$(hostelId)/members/$(request.auth.uid)).data.role;
+    }
+
+    function isHostelOwner(hostelId) {
+      return isHostelMember(hostelId) && getMemberRole(hostelId) == 'owner';
+    }
+
+    function isHostelAdmin(hostelId) {
+      return isHostelMember(hostelId) && 
+        (getMemberRole(hostelId) == 'owner' || getMemberRole(hostelId) == 'admin');
+    }
+
+    function isHostelManager(hostelId) {
+      return isHostelMember(hostelId) && 
+        (getMemberRole(hostelId) == 'owner' || getMemberRole(hostelId) == 'admin' || getMemberRole(hostelId) == 'manager');
+    }
+
+    // -------------------------------------------------------------
+    // Users Collection
+    // -------------------------------------------------------------
+    match /users/{userId} {
+      // Any authenticated user can read public user profile details
+      allow read: if isAuthenticated();
+      // Only the user themselves can create/update their profile
+      allow create, update: if isUser(userId);
+      allow delete: if false; // Profiles are deactivated, not deleted
+    }
+
+    // -------------------------------------------------------------
+    // Hostels Collection & Multi-Tenant Subcollections
+    // -------------------------------------------------------------
+    match /hostels/{hostelId} {
+      // Anyone authenticated can read basic hostel info (e.g. for joining via code)
+      allow read: if isAuthenticated();
+      // Any authenticated user can create a hostel (they become the owner)
+      allow create: if isAuthenticated() && request.resource.data.ownerId == request.auth.uid;
+      // Only owner/admin can update hostel details or archive
+      allow update: if isHostelAdmin(hostelId);
+      // Only owner can delete
+      allow delete: if isHostelOwner(hostelId);
+
+      // Members Subcollection
+      match /members/{memberId} {
+        // Members of the hostel can read all member profiles in that hostel
+        allow read: if isHostelMember(hostelId);
+        // Owner/admin can add/manage members; user can create their own member record during hostel creation
+        allow create: if isAuthenticated() && (request.auth.uid == memberId || isHostelAdmin(hostelId));
+        allow update: if isHostelAdmin(hostelId) || (isUser(memberId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['phone', 'roomNumber', 'studentId', 'university', 'department', 'updatedAt']));
+        allow delete: if isHostelAdmin(hostelId);
+      }
+
+      // Join Requests Subcollection
+      match /joinRequests/{requestId} {
+        // Users can read their own request; Managers/Admins can read all requests for their hostel
+        allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isHostelManager(hostelId));
+        // Authenticated user can submit a join request
+        allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid && request.resource.data.status == 'pending';
+        // Managers/Admins can review (approve/reject) join requests
+        allow update: if isHostelManager(hostelId);
+        allow delete: if isHostelAdmin(hostelId) || (resource.data.userId == request.auth.uid && resource.data.status == 'pending');
+      }
+
+      // Months Subcollection
+      match /months/{monthId} {
+        allow read: if isHostelMember(hostelId);
+        allow create, update: if isHostelManager(hostelId);
+        allow delete: if isHostelAdmin(hostelId);
+      }
+
+      // Notices Subcollection
+      match /notices/{noticeId} {
+        allow read: if isHostelMember(hostelId);
+        allow create, update, delete: if isHostelManager(hostelId);
+      }
+
+      // Meals Subcollection
+      match /meals/{mealId} {
+        allow read: if isHostelMember(hostelId);
+        // Manager can record/edit all meals; members can toggle their own daily meal entry if permitted
+        allow create, update: if isHostelManager(hostelId) || (isHostelMember(hostelId) && request.resource.data.userId == request.auth.uid);
+        allow delete: if isHostelManager(hostelId);
+      }
+
+      // Expenses Subcollection
+      match /expenses/{expenseId} {
+        allow read: if isHostelMember(hostelId);
+        allow create, update, delete: if isHostelManager(hostelId);
+      }
+
+      // Deposits Subcollection
+      match /deposits/{depositId} {
+        allow read: if isHostelMember(hostelId);
+        // Managers can approve/record deposits; members can submit their own deposit entry
+        allow create: if isHostelManager(hostelId) || (isHostelMember(hostelId) && request.resource.data.userId == request.auth.uid);
+        allow update: if isHostelManager(hostelId);
+        allow delete: if isHostelAdmin(hostelId);
+      }
+
+      // Bazaar Subcollection
+      match /bazaar/{bazaarId} {
+        allow read: if isHostelMember(hostelId);
+        allow create, update: if isHostelManager(hostelId) || (isHostelMember(hostelId) && resource.data.assignedTo == request.auth.uid);
+        allow delete: if isHostelManager(hostelId);
+      }
+
+      // Transactions / Ledger Subcollection
+      match /transactions/{transactionId} {
+        allow read: if isHostelMember(hostelId);
+        allow create, update, delete: if isHostelManager(hostelId);
+      }
+
+      // Reports Subcollection
+      match /reports/{reportId} {
+        allow read: if isHostelMember(hostelId);
+        allow create, update: if isHostelManager(hostelId);
+        allow delete: if isHostelAdmin(hostelId);
+      }
+    }
+  }
+}
