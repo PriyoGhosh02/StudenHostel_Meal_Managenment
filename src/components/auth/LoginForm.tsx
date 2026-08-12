@@ -59,7 +59,7 @@ export function LoginForm() {
   };
 
   return (
-    <div className="space-y-5">
+    <div className="auth-dark-form space-y-5">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <Input
           label={t("email")}
@@ -72,7 +72,7 @@ export function LoginForm() {
 
         <div>
           <div className="flex items-center justify-between mb-1">
-            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+            <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 600, color: "#CBD5E1", textTransform: "uppercase", letterSpacing: "0.05em" }}>
               {t("password")}
             </label>
             <Link
@@ -106,7 +106,7 @@ export function LoginForm() {
           <div className="w-full border-t border-slate-200" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-white px-2 text-slate-500 font-medium">Or continue with</span>
+          <span style={{ background: "transparent", padding: "0 0.5rem", color: "#64748B", fontSize: "0.75rem", fontWeight: 500 }}>Or continue with</span>
         </div>
       </div>
 

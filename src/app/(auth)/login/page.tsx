@@ -10,25 +10,35 @@ export const metadata = {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <Link href="/" className="inline-flex items-center gap-2 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
+    <div
+      style={{ minHeight: "100vh", background: "linear-gradient(135deg, #0F172A 0%, #1a2744 60%, #0F172A 100%)", display: "flex", flexDirection: "column", justifyContent: "center", padding: "3rem 1rem" }}
+    >
+      <div style={{ margin: "0 auto", width: "100%", maxWidth: "26rem", textAlign: "center" }}>
+        <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", marginBottom: "1.5rem" }}>
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg">
             <Building2 className="w-5 h-5" />
           </div>
-          <span className="text-xl font-bold tracking-tight text-slate-900">HostelMaster</span>
+          <span style={{ fontSize: "1.25rem", fontWeight: 800, color: "#FFFFFF", letterSpacing: "-0.02em" }}>HostelMaster</span>
         </Link>
-        <h2 className="text-2xl font-bold tracking-tight text-slate-900">Sign in to your account</h2>
-        <p className="mt-2 text-xs md:text-sm text-slate-600">
+        <h2 style={{ fontSize: "1.75rem", fontWeight: 800, color: "#FFFFFF", letterSpacing: "-0.02em" }}>Sign in to your account</h2>
+        <p style={{ marginTop: "0.5rem", fontSize: "0.875rem", color: "#94A3B8" }}>
           Or{" "}
-          <Link href="/register" className="font-semibold text-blue-600 hover:text-blue-500 hover:underline">
+          <Link href="/register" style={{ fontWeight: 600, color: "#60A5FA" }}>
             create a new hostel or member account
           </Link>
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
-        <div className="bg-white py-8 px-6 shadow-sm border border-slate-200/80 rounded-2xl sm:px-10">
+      <div style={{ marginTop: "2rem", margin: "2rem auto 0", width: "100%", maxWidth: "26rem", padding: "0 1rem" }}>
+        <div
+          style={{
+            background: "rgba(255,255,255,0.05)",
+            border: "1px solid rgba(255,255,255,0.1)",
+            borderRadius: "1.25rem",
+            padding: "2rem 1.75rem",
+            backdropFilter: "blur(12px)",
+          }}
+        >
           <LoginForm />
         </div>
       </div>

@@ -102,10 +102,22 @@
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Guarantee text visibility — do NOT let text go invisible */
+h1, h2, h3, h4, h5, h6 {
+  color: inherit;
+  font-weight: 700;
+}
+
+/* Force strong contrast on marketing page hero */
+.marketing-hero {
+  background: linear-gradient(135deg, #0F172A 0%, #1E3A5F 50%, #0F172A 100%);
+  color: #F8FAFC;
 }
 
 /* Custom modern scrollbars */
@@ -151,3 +163,29 @@ body {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
+
+/* ─── Auth Pages: Force dark form inputs on glassmorphism card ────────────── */
+.auth-dark-form label {
+  color: #CBD5E1 !important;
+}
+
+.auth-dark-form input {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: #F1F5F9 !important;
+}
+
+.auth-dark-form input::placeholder {
+  color: #64748B !important;
+}
+
+.auth-dark-form input:focus {
+  border-color: #3B82F6 !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25) !important;
+  outline: none !important;
+}
+
+.auth-dark-form .border-t {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+

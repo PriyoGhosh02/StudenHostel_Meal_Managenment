@@ -69,7 +69,7 @@ export function RegisterForm() {
   };
 
   return (
-    <div className="space-y-5">
+    <div className="auth-dark-form space-y-5">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-3.5">
         <Input
           label={t("name")}

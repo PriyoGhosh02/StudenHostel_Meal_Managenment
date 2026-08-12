@@ -7,7 +7,7 @@ import { LanguageProvider } from "@/context/language-context";
 import { ThemeProvider } from "@/context/theme-context";
 import { Toaster } from "sonner";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
   title: "HostelMaster — Modern Mess & Hostel Management SaaS",
