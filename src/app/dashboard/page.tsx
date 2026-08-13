@@ -387,10 +387,11 @@ export default function DashboardPage() {
         }
         action={
           currentMember?.status !== "pending" ? (
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
               <Button
                 size="sm"
                 variant="outline"
+                className="w-full sm:w-auto justify-center text-xs"
                 onClick={() => {
                   setQuickActionModal("meal");
                   setQuickDate(new Date().toISOString().split("T")[0]);
@@ -402,6 +403,7 @@ export default function DashboardPage() {
               <Button
                 size="sm"
                 variant="outline"
+                className="w-full sm:w-auto justify-center text-xs"
                 onClick={() => setQuickActionModal("deposit")}
                 leftIcon={<Wallet className="w-3.5 h-3.5" />}
               >
@@ -410,6 +412,7 @@ export default function DashboardPage() {
               <Button
                 size="sm"
                 variant={isManager ? "primary" : "outline"}
+                className="w-full sm:w-auto justify-center text-xs"
                 onClick={() => {
                   setQuickActionModal("expense");
                   setQuickDate(new Date().toISOString().split("T")[0]);
@@ -438,7 +441,7 @@ export default function DashboardPage() {
       )}
 
       {/* Notice Banner */}
-      <div className="p-4 rounded-xl bg-blue-50 dark:bg-slate-900 border border-blue-200/80 dark:border-slate-800 flex items-start gap-3 shadow-2xs">
+      {/* <div className="p-4 rounded-xl bg-blue-50 dark:bg-slate-900 border border-blue-200/80 dark:border-slate-800 flex items-start gap-3 shadow-2xs">
         <div className="p-2 rounded-lg bg-blue-600 text-white shrink-0">
           <Bell className="w-4 h-4" />
         </div>
@@ -464,7 +467,7 @@ export default function DashboardPage() {
             View All
           </Button>
         </Link>
-      </div>
+      </div> */}
 
       {/* 4 Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -508,43 +511,88 @@ export default function DashboardPage() {
               ) : memberSummaries.length === 0 ? (
                 <div className="text-center py-8 text-slate-500">No members registered in this hostel yet.</div>
               ) : (
-                <Table className="border-0 rounded-none shadow-none">
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Member</TableHead>
-                      <TableHead>Room</TableHead>
-                      <TableHead>Meals</TableHead>
-                      <TableHead>Deposited</TableHead>
-                      <TableHead>Net Balance</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
+                <>
+                  {/* Table View for larger screens */}
+                  <div className="hidden md:block">
+                    <Table className="border-0 rounded-none shadow-none">
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Member</TableHead>
+                          <TableHead>Room</TableHead>
+                          <TableHead>Meals</TableHead>
+                          <TableHead>Deposited</TableHead>
+                          <TableHead>Net Balance</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {memberSummaries.map((m) => {
+                          const isSurplus = m.net.startsWith("+");
+                          return (
+                            <TableRow key={m.uid}>
+                              <TableCell>
+                                <div className="font-semibold text-slate-900 text-xs md:text-sm">{m.name}</div>
+                                <div className="text-[10px] text-slate-400 capitalize">{m.role}</div>
+                              </TableCell>
+                              <TableCell className="font-mono text-xs">{m.room}</TableCell>
+                              <TableCell className="font-semibold text-xs">{m.meals}</TableCell>
+                              <TableCell className="text-xs">{currencySymbol} {m.deposited.toLocaleString()}</TableCell>
+                              <TableCell>
+                                <span
+                                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${isSurplus
+                                    ? "bg-emerald-50 text-emerald-700"
+                                    : "bg-rose-50 text-rose-700"
+                                    }`}
+                                >
+                                  {currencySymbol} {m.net}
+                                </span>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+
+                  {/* Card List View for Mobile */}
+                  <div className="block md:hidden divide-y divide-slate-100 dark:divide-slate-800/60">
                     {memberSummaries.map((m) => {
                       const isSurplus = m.net.startsWith("+");
                       return (
-                        <TableRow key={m.uid}>
-                          <TableCell>
-                            <div className="font-semibold text-slate-900 text-xs md:text-sm">{m.name}</div>
-                            <div className="text-[10px] text-slate-400 capitalize">{m.role}</div>
-                          </TableCell>
-                          <TableCell className="font-mono text-xs">{m.room}</TableCell>
-                          <TableCell className="font-semibold text-xs">{m.meals}</TableCell>
-                          <TableCell className="text-xs">{currencySymbol} {m.deposited.toLocaleString()}</TableCell>
-                          <TableCell>
+                        <div key={m.uid} className="p-4 flex flex-col gap-3">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <div className="font-bold text-slate-900 dark:text-slate-100 text-xs sm:text-sm">{m.name}</div>
+                              <div className="text-[10px] text-slate-400 capitalize">{m.role}</div>
+                            </div>
                             <span
-                              className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${isSurplus
-                                ? "bg-emerald-50 text-emerald-700"
-                                : "bg-rose-50 text-rose-700"
+                              className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${isSurplus
+                                ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400"
+                                : "bg-rose-50 text-rose-700 dark:bg-rose-950/20 dark:text-rose-400"
                                 }`}
                             >
-                              {currencySymbol} {m.net}
+                              Bal: {currencySymbol}{m.net}
                             </span>
-                          </TableCell>
-                        </TableRow>
+                          </div>
+
+                          <div className="grid grid-cols-3 gap-2 text-center text-[11px]">
+                            <div className="bg-slate-50 dark:bg-slate-800/40 p-2 rounded-lg">
+                              <span className="block text-[9px] text-slate-400 dark:text-slate-500 uppercase tracking-wider">Room</span>
+                              <span className="font-mono font-semibold text-slate-800 dark:text-slate-200">{m.room || "N/A"}</span>
+                            </div>
+                            <div className="bg-slate-50 dark:bg-slate-800/40 p-2 rounded-lg">
+                              <span className="block text-[9px] text-slate-400 dark:text-slate-500 uppercase tracking-wider">Meals</span>
+                              <span className="font-semibold text-slate-800 dark:text-slate-200">{m.meals}</span>
+                            </div>
+                            <div className="bg-slate-50 dark:bg-slate-800/40 p-2 rounded-lg">
+                              <span className="block text-[9px] text-slate-400 dark:text-slate-500 uppercase tracking-wider">Deposited</span>
+                              <span className="font-semibold text-slate-800 dark:text-slate-200">{currencySymbol}{m.deposited.toLocaleString()}</span>
+                            </div>
+                          </div>
+                        </div>
                       );
                     })}
-                  </TableBody>
-                </Table>
+                  </div>
+                </>
               )}
             </CardContent>
           </Card>
