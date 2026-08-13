@@ -343,9 +343,9 @@ export default function NoticePage() {
         description="Broadcast an announcement to all members"
       >
         <div className="space-y-4">
-          <Input 
-            label="Notice Title" 
-            placeholder="e.g. Water Supply Maintenance" 
+          <Input
+            label="Notice Title"
+            placeholder="e.g. Water Supply Maintenance"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
@@ -359,10 +359,10 @@ export default function NoticePage() {
               { value: "high", label: "High / Urgent Priority" },
             ]}
           />
-          <Textarea 
-            label="Notice Body" 
-            rows={4} 
-            placeholder="Write the announcement details..." 
+          <Textarea
+            label="Notice Body"
+            rows={4}
+            placeholder="Write the announcement details..."
             value={content}
             onChange={(e) => setContent(e.target.value)}
           />

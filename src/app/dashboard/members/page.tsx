@@ -32,6 +32,14 @@ export default function MembersPage() {
   const [members, setMembers] = useState<MemberWithProfile[]>([]);
   const [requests, setRequests] = useState<JoinRequest[]>([]);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [copiedMemberId, setCopiedMemberId] = useState<string | null>(null);
+
+  const copyMemberCode = (code: string) => {
+    navigator.clipboard.writeText(code);
+    setCopiedMemberId(code);
+    setTimeout(() => setCopiedMemberId(null), 2000);
+    toast.success(`Copied member code: ${code}`);
+  };
 
   // Add Member Modal State
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -318,9 +326,22 @@ export default function MembersPage() {
                   {filteredMembers.map((m) => (
                     <TableRow key={m.uid}>
                       <TableCell>
-                        <span className="font-mono font-bold text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 rounded border border-blue-100 dark:border-blue-900/30">
-                          {m.memberCode || m.studentId || `MEM-${m.uid.slice(0, 6).toUpperCase()}`}
-                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-mono font-bold text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 rounded border border-blue-100 dark:border-blue-900/30">
+                            {m.memberCode || m.studentId || `MEM-${m.uid.slice(0, 6).toUpperCase()}`}
+                          </span>
+                          <button
+                            onClick={() => copyMemberCode(m.memberCode || m.studentId || `MEM-${m.uid.slice(0, 6).toUpperCase()}`)}
+                            className="p-1 text-slate-400 hover:text-blue-600 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            title="Copy Member Code"
+                          >
+                            {copiedMemberId === (m.memberCode || m.studentId || `MEM-${m.uid.slice(0, 6).toUpperCase()}`) ? (
+                              <Check className="w-3.5 h-3.5 text-emerald-600" />
+                            ) : (
+                              <Copy className="w-3.5 h-3.5" />
+                            )}
+                          </button>
+                        </div>
                       </TableCell>
                       <TableCell>
                         <div className="font-semibold text-slate-900 dark:text-slate-100 text-xs md:text-sm">{m.name}</div>

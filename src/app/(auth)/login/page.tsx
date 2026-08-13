@@ -1,7 +1,7 @@
-import React from "react";
+import React, { Suspense } from "react";
 import Link from "next/link";
 import { LoginForm } from "@/components/auth/LoginForm";
-import { Building2 } from "lucide-react";
+import { Building2, Loader2 } from "lucide-react";
 
 export const metadata = {
   title: "Login | HostelMaster",
@@ -39,7 +39,14 @@ export default function LoginPage() {
             backdropFilter: "blur(12px)",
           }}
         >
-          <LoginForm />
+          <Suspense fallback={
+            <div className="flex flex-col items-center justify-center py-6 gap-2 text-slate-400">
+              <Loader2 className="w-6 h-6 animate-spin text-blue-400" />
+              <span className="text-xs">Loading form...</span>
+            </div>
+          }>
+            <LoginForm />
+          </Suspense>
         </div>
       </div>
     </div>

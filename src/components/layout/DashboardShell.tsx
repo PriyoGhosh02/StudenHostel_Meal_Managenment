@@ -13,7 +13,7 @@ import { Loader2 } from "lucide-react";
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { user, profile, loading: authLoading, isFirebaseConfigured } = useAuth();
-  const { currentHostel, loading: hostelLoading } = useHostel();
+  const { currentHostel, currentMember, loading: hostelLoading } = useHostel();
 
   useEffect(() => {
     if (authLoading || hostelLoading) return;
@@ -23,11 +23,16 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    if (user && isFirebaseConfigured && currentMember?.status === "pending") {
+      router.push("/onboarding/join-hostel");
+      return;
+    }
+
     if (user && isFirebaseConfigured && !profile?.activeHostelId && !currentHostel) {
       router.push("/onboarding");
       return;
     }
-  }, [user, profile, currentHostel, authLoading, hostelLoading, isFirebaseConfigured, router]);
+  }, [user, profile, currentHostel, currentMember, authLoading, hostelLoading, isFirebaseConfigured, router]);
 
   if (authLoading || hostelLoading) {
     return (

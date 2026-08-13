@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -24,6 +24,8 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/dashboard";
   const { login, isFirebaseConfigured, setDemoUser } = useAuth();
   const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
@@ -46,7 +48,7 @@ export function LoginForm() {
       if (!isFirebaseConfigured) {
         setDemoUser();
         toast.info("Logged in as Demo User");
-        router.push("/dashboard");
+        router.push(redirectTo);
         return;
       }
 
@@ -58,7 +60,7 @@ export function LoginForm() {
 
       if (userProfile?.activeHostelId) {
         toast.success(`Welcome back, ${userProfile.name || "Member"}!`);
-        router.push("/dashboard");
+        router.push(redirectTo);
       } else {
         toast.success("Login successful! Let's set up your hostel.");
         router.push("/onboarding");
