@@ -22,7 +22,7 @@ export interface AuthContextType {
   loading: boolean;
   isAuthenticated: boolean;
   isFirebaseConfigured: boolean;
-  login: (email: string, pass: string) => Promise<void>;
+  login: (email: string, pass: string) => Promise<FirebaseUser>;
   register: (email: string, pass: string, name: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
@@ -109,6 +109,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const res = await signInWithEmail(email, pass);
       await fetchProfile(res.user);
+      return res.user;
     } finally {
       setLoading(false);
     }

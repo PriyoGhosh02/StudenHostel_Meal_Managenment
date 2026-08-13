@@ -9,6 +9,7 @@ import { monthDoc } from "@/lib/firebase/firestore";
 import { Hostel, HostelMonth } from "@/types/hostel";
 import { HostelMember } from "@/types/member";
 import { UserRole, Permission } from "@/types/user";
+import { UserService } from "@/lib/services/user.service";
 import { hasPermission, isManagerialRole, isAdminRole } from "@/lib/permissions";
 
 export interface HostelContextType {
@@ -101,12 +102,27 @@ export function HostelProvider({ children }: { children: React.ReactNode }) {
       const member = await MemberService.getMember(hostelId, uid);
       setCurrentMember(member);
 
-      // Load active month
-      if (hostel.currentMonthId) {
+      if (!member) {
+        // If member is null, it means they are no longer in this hostel (e.g. rejected or removed).
+        // Clear active hostel ID.
+        try {
+          await UserService.setActiveHostel(uid, "");
+        } catch (err) {
+          console.warn("Failed to clear active hostel ID:", err);
+        }
+        setCurrentHostel(null);
+        setCurrentMonth(null);
+        return;
+      }
+
+      // Load active month ONLY if status is active
+      if (member.status === "active" && hostel.currentMonthId) {
         const mSnap = await getDoc(monthDoc(hostelId, hostel.currentMonthId));
         if (mSnap.exists()) {
           setCurrentMonth(mSnap.data() as HostelMonth);
         }
+      } else {
+        setCurrentMonth(null);
       }
     } catch (error) {
       console.error("Error loading hostel data:", error);

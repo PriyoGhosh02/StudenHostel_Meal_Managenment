@@ -50,7 +50,7 @@ interface MemberSummary {
 }
 
 export default function DashboardPage() {
-  const { currentHostel, role, isManager, refreshHostel } = useHostel();
+  const { currentHostel, currentMember, role, isManager, refreshHostel } = useHostel();
   const { user, profile, isFirebaseConfigured } = useAuth();
   const { monthName, monthId, currency } = useCurrentMonth();
   const { t, currencySymbol } = useTranslation();
@@ -86,6 +86,17 @@ export default function DashboardPage() {
 
   const fetchDashboardData = useCallback(async () => {
     if (!currentHostel || !monthId) return;
+
+    if (currentMember?.status === "pending") {
+      setMembers([]);
+      setMeals([]);
+      setDeposits([]);
+      setExpenses([]);
+      setBazaars([]);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
       if (isFirebaseConfigured) {
@@ -375,40 +386,56 @@ export default function DashboardPage() {
           </Badge>
         }
         action={
-          <div className="flex items-center gap-2 flex-wrap">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => {
-                setQuickActionModal("meal");
-                setQuickDate(new Date().toISOString().split("T")[0]);
-              }}
-              leftIcon={<UtensilsCrossed className="w-3.5 h-3.5" />}
-            >
-              Add Daily Meal
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setQuickActionModal("deposit")}
-              leftIcon={<Wallet className="w-3.5 h-3.5" />}
-            >
-              {isManager ? "Record Deposit" : "Request Deposit"}
-            </Button>
-            <Button
-              size="sm"
-              variant={isManager ? "primary" : "outline"}
-              onClick={() => {
-                setQuickActionModal("expense");
-                setQuickDate(new Date().toISOString().split("T")[0]);
-              }}
-              leftIcon={<Plus className="w-3.5 h-3.5" />}
-            >
-              {isManager ? "Log Expense" : "Request Expense"}
-            </Button>
-          </div>
+          currentMember?.status !== "pending" ? (
+            <div className="flex items-center gap-2 flex-wrap">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  setQuickActionModal("meal");
+                  setQuickDate(new Date().toISOString().split("T")[0]);
+                }}
+                leftIcon={<UtensilsCrossed className="w-3.5 h-3.5" />}
+              >
+                Add Daily Meal
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setQuickActionModal("deposit")}
+                leftIcon={<Wallet className="w-3.5 h-3.5" />}
+              >
+                {isManager ? "Record Deposit" : "Request Deposit"}
+              </Button>
+              <Button
+                size="sm"
+                variant={isManager ? "primary" : "outline"}
+                onClick={() => {
+                  setQuickActionModal("expense");
+                  setQuickDate(new Date().toISOString().split("T")[0]);
+                }}
+                leftIcon={<Plus className="w-3.5 h-3.5" />}
+              >
+                {isManager ? "Log Expense" : "Request Expense"}
+              </Button>
+            </div>
+          ) : undefined
         }
       />
+
+      {currentMember?.status === "pending" && (
+        <div className="bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 p-4 rounded-xl flex items-start gap-3">
+          <div className="w-5 h-5 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400 animate-pulse">
+            ⚠️
+          </div>
+          <div>
+            <h3 className="font-bold text-amber-800 dark:text-amber-300">Awaiting Manager Approval</h3>
+            <p className="text-xs text-amber-700 dark:text-amber-400/90 mt-1">
+              Your request to join <strong>{currentHostel?.name}</strong> has been submitted. Until the manager approves your request, you are in view-only pending status, and your calculations will display as 0.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Notice Banner */}
       <div className="p-4 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-900/60 dark:to-slate-850/60 border border-blue-200/80 dark:border-slate-800 flex items-start gap-3 shadow-2xs">

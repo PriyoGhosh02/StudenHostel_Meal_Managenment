@@ -36,12 +36,18 @@ export default function ManagerPage() {
     setLoading(true);
     try {
       if (isFirebaseConfigured) {
-        const [mList, rList] = await Promise.all([
-          MemberService.listMembersWithProfiles(currentHostel.id),
-          RequestService.listRequests(currentHostel.id, "pending"),
-        ]);
-        setMembers(mList);
-        setRequests(rList);
+        if (isManager) {
+          const [mList, rList] = await Promise.all([
+            MemberService.listMembersWithProfiles(currentHostel.id),
+            RequestService.listRequests(currentHostel.id, "pending"),
+          ]);
+          setMembers(mList);
+          setRequests(rList);
+        } else {
+          const mList = await MemberService.listMembersWithProfiles(currentHostel.id);
+          setMembers(mList);
+          setRequests([]);
+        }
       } else {
         setMembers([]);
         setRequests([]);
@@ -52,7 +58,7 @@ export default function ManagerPage() {
     } finally {
       setLoading(false);
     }
-  }, [currentHostel, isFirebaseConfigured]);
+  }, [currentHostel, isFirebaseConfigured, isManager]);
 
   useEffect(() => {
     fetchManagerData();

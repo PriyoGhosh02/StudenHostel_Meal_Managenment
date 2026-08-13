@@ -29,19 +29,22 @@ import {
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { currentHostel, currentMonth, role, isManager } = useHostel();
+  const { currentHostel, currentMember, currentMonth, role, isManager } = useHostel();
   const { isFirebaseConfigured } = useAuth();
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
 
   useEffect(() => {
-    if (!currentHostel || !isFirebaseConfigured) return;
+    if (!currentHostel || !isFirebaseConfigured || !isManager || currentMember?.status !== "active") {
+      setPendingCount(0);
+      return;
+    }
     const unsub = RequestService.subscribePendingRequestsCount(currentHostel.id, (cnt) => {
       setPendingCount(cnt);
     });
     return () => unsub();
-  }, [currentHostel, isFirebaseConfigured]);
+  }, [currentHostel, isFirebaseConfigured, isManager, currentMember]);
 
   const copyCode = () => {
     if (currentHostel?.code) {

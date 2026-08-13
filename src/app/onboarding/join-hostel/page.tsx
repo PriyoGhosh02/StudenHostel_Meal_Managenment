@@ -2,19 +2,19 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import { useTranslation } from "@/hooks/use-translation";
 import { HostelService } from "@/lib/services/hostel.service";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Badge } from "@/components/ui/Badge";
 import { toast } from "sonner";
-import { ArrowLeft, Search, LogIn, Clock, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Search, LogIn, Clock, CheckCircle2, Building2 } from "lucide-react";
 import { Hostel } from "@/types/hostel";
 import { Timestamp } from "firebase/firestore";
 
 export default function JoinHostelPage() {
+  const router = useRouter();
   const { user, profile, isFirebaseConfigured } = useAuth();
   const { t } = useTranslation();
 
@@ -38,7 +38,6 @@ export default function JoinHostelPage() {
     setFoundHostel(null);
     try {
       if (!isFirebaseConfigured) {
-        // Demo mode fallback
         setFoundHostel({
           id: "demo-hostel-1",
           name: "Emerald Green Student Residence",
@@ -78,8 +77,8 @@ export default function JoinHostelPage() {
     setSubmitting(true);
     try {
       if (!isFirebaseConfigured) {
-        setSubmitted(true);
-        toast.success("Demo: Join request submitted!");
+        toast.success("Demo: Joined hostel successfully!");
+        router.push("/dashboard");
         return;
       }
 
@@ -91,10 +90,11 @@ export default function JoinHostelPage() {
         userPhone: phone,
         hostelName: foundHostel.name,
         hostelCode: foundHostel.code,
+        roomNumber: roomNumber,
       });
 
-      setSubmitted(true);
-      toast.success("Join request submitted! Awaiting manager approval.");
+      toast.success("Join request submitted! Redirecting to dashboard...");
+      router.push("/dashboard");
     } catch (error: unknown) {
       toast.error((error as Error).message || "Failed to submit join request");
     } finally {
@@ -103,132 +103,185 @@ export default function JoinHostelPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] py-12 px-4 sm:px-6 lg:px-8 flex flex-col justify-center items-center">
-      <div className="w-full max-w-lg">
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #0F172A 0%, #1a2744 60%, #0F172A 100%)",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        padding: "3rem 1rem",
+      }}
+    >
+      <div style={{ width: "100%", maxWidth: "32rem" }}>
         <Link
           href="/onboarding"
-          className="inline-flex items-center gap-2 text-xs font-medium text-slate-500 hover:text-slate-800 mb-6 transition-colors"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.375rem",
+            fontSize: "0.8rem",
+            fontWeight: 500,
+            color: "#64748B",
+            marginBottom: "1.5rem",
+            textDecoration: "none",
+          }}
         >
           <ArrowLeft className="w-4 h-4" />
           Back to choices
         </Link>
 
         {submitted ? (
-          <Card className="text-center p-8 border-amber-200 bg-white shadow-lg animate-in zoom-in-95 duration-200">
-            <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Clock className="w-8 h-8" />
+          /* Success State */
+          <div
+            style={{
+              background: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(245,158,11,0.3)",
+              borderRadius: "1.25rem",
+              padding: "2.5rem",
+              textAlign: "center",
+              backdropFilter: "blur(12px)",
+            }}
+          >
+            <div style={{ width: "4rem", height: "4rem", background: "rgba(245,158,11,0.15)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.25rem" }}>
+              <Clock className="w-8 h-8 text-amber-400" />
             </div>
-            <h2 className="text-2xl font-bold text-slate-900">Join Request Submitted</h2>
-            <Badge variant="warning" className="my-3">
+            <h2 style={{ fontSize: "1.5rem", fontWeight: 800, color: "#FFFFFF", marginBottom: "0.75rem" }}>Join Request Submitted</h2>
+            <span style={{ background: "rgba(245,158,11,0.15)", color: "#FCD34D", border: "1px solid rgba(245,158,11,0.3)", borderRadius: "9999px", padding: "0.3rem 0.875rem", fontSize: "0.75rem", fontWeight: 700 }}>
               Pending Manager Approval
-            </Badge>
-            <p className="text-sm text-slate-600 max-w-sm mx-auto">
-              Your request to join <strong>{foundHostel?.name}</strong> has been sent to the hostel managers. You will gain access once they approve your membership.
+            </span>
+            <p style={{ fontSize: "0.875rem", color: "#94A3B8", maxWidth: "20rem", margin: "1rem auto", lineHeight: 1.6 }}>
+              Your request to join <strong style={{ color: "#F1F5F9" }}>{foundHostel?.name}</strong> has been sent to the hostel managers. You will gain access once they approve your membership.
             </p>
 
-            <div className="mt-8 flex flex-col gap-3">
-              <Button
-                variant="outline"
-                className="w-full justify-center"
-                onClick={() => {
-                  setSubmitted(false);
-                  setFoundHostel(null);
-                  setCode("");
-                }}
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", marginTop: "2rem" }}>
+              <button
+                onClick={() => { setSubmitted(false); setFoundHostel(null); setCode(""); }}
+                style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "0.625rem", color: "#F1F5F9", fontWeight: 600, padding: "0.65rem 1.5rem", cursor: "pointer", fontSize: "0.875rem" }}
               >
                 Join Another Hostel
-              </Button>
-              <Link href="/dashboard" className="w-full">
+              </button>
+              <Link href="/dashboard" style={{ textDecoration: "none" }}>
                 <Button className="w-full justify-center">
                   Go to Dashboard
                 </Button>
               </Link>
             </div>
-          </Card>
+          </div>
         ) : (
-          <Card className="shadow-sm border-slate-200/80 bg-white">
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                  <LogIn className="w-5 h-5" />
-                </div>
-                <div>
-                  <CardTitle className="text-xl text-slate-900">{t("join_hostel")}</CardTitle>
-                  <CardDescription>Enter the hostel share code provided by your manager</CardDescription>
-                </div>
+          /* Main Join Form */
+          <div
+            style={{
+              background: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: "1.25rem",
+              padding: "2rem",
+              backdropFilter: "blur(12px)",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "0.875rem", marginBottom: "1.75rem" }}>
+              <div style={{ width: "2.75rem", height: "2.75rem", borderRadius: "0.75rem", background: "rgba(16,185,129,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <LogIn className="w-5 h-5 text-emerald-400" />
               </div>
-            </CardHeader>
+              <div>
+                <h2 style={{ fontSize: "1.25rem", fontWeight: 800, color: "#FFFFFF" }}>{t("join_hostel")}</h2>
+                <p style={{ fontSize: "0.8rem", color: "#64748B" }}>Enter the hostel share code provided by your manager</p>
+              </div>
+            </div>
 
-            <CardContent className="space-y-6">
-              {/* Step 1: Code Search */}
-              <form onSubmit={handleSearch} className="space-y-4">
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                    {t("hostel_code")}
-                  </label>
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="e.g. HST-X7K92"
-                      value={code}
-                      onChange={(e) => setCode(e.target.value.toUpperCase())}
-                      className="font-mono uppercase tracking-wider text-base"
-                    />
-                    <Button
-                      type="submit"
-                      variant="primary"
-                      isLoading={searching}
-                      leftIcon={<Search className="w-4 h-4" />}
-                    >
-                      Find
-                    </Button>
-                  </div>
-                </div>
-              </form>
-
-              {/* Step 2: Found Hostel Card & Details */}
-              {foundHostel && (
-                <div className="p-4 rounded-xl border border-emerald-200 bg-emerald-50/40 space-y-4 animate-in fade-in duration-200">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h4 className="font-bold text-slate-900 text-base">{foundHostel.name}</h4>
-                      <p className="text-xs text-slate-500">
-                        {foundHostel.city ? `${foundHostel.city} • ` : ""}
-                        Currency: {foundHostel.currency}
-                      </p>
-                    </div>
-                    <Badge variant="success">Active Hostel</Badge>
-                  </div>
-
-                  <div className="space-y-3 pt-2 border-t border-emerald-200/60">
-                    <Input
-                      label="Room Number"
-                      placeholder="e.g. 204"
-                      value={roomNumber}
-                      onChange={(e) => setRoomNumber(e.target.value)}
-                    />
-                    <Input
-                      label="Phone Number"
-                      type="tel"
-                      placeholder="+880 1700-000000"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                    />
-                  </div>
-
+            {/* Step 1: Code Search */}
+            <form onSubmit={handleSearch} className="auth-dark-form" style={{ marginBottom: "1.5rem" }}>
+              <div style={{ marginBottom: "0.875rem" }}>
+                <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 600, color: "#CBD5E1", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.4rem" }}>
+                  {t("hostel_code")}
+                </label>
+                <div style={{ display: "flex", gap: "0.5rem" }}>
+                  <input
+                    placeholder="e.g. HST-X7K92"
+                    value={code}
+                    onChange={(e) => setCode(e.target.value.toUpperCase())}
+                    style={{
+                      flex: 1,
+                      background: "rgba(255,255,255,0.08)",
+                      border: "1px solid rgba(255,255,255,0.15)",
+                      borderRadius: "0.5rem",
+                      padding: "0.6rem 0.875rem",
+                      color: "#F1F5F9",
+                      fontFamily: "monospace",
+                      fontSize: "0.975rem",
+                      fontWeight: 600,
+                      letterSpacing: "0.1em",
+                      outline: "none",
+                    }}
+                  />
                   <Button
-                    type="button"
-                    variant="success"
-                    className="w-full justify-center mt-2"
-                    isLoading={submitting}
-                    onClick={handleJoin}
-                    leftIcon={<CheckCircle2 className="w-4 h-4" />}
+                    type="submit"
+                    isLoading={searching}
+                    leftIcon={<Search className="w-4 h-4" />}
                   >
-                    Submit Join Request
+                    Find
                   </Button>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+              </div>
+            </form>
+
+            {/* Step 2: Found Hostel Card */}
+            {foundHostel && (
+              <div
+                style={{
+                  padding: "1rem",
+                  borderRadius: "0.875rem",
+                  border: "1px solid rgba(16,185,129,0.25)",
+                  background: "rgba(16,185,129,0.07)",
+                  marginTop: "0.5rem",
+                }}
+                className="auth-dark-form"
+              >
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "1rem" }}>
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                      <Building2 className="w-4 h-4 text-emerald-400" />
+                      <h4 style={{ fontWeight: 700, color: "#FFFFFF", fontSize: "1rem" }}>{foundHostel.name}</h4>
+                    </div>
+                    <p style={{ fontSize: "0.75rem", color: "#64748B", marginTop: "0.2rem" }}>
+                      {foundHostel.city ? `${foundHostel.city} • ` : ""}Currency: {foundHostel.currency}
+                    </p>
+                  </div>
+                  <span style={{ background: "rgba(16,185,129,0.15)", color: "#4ADE80", border: "1px solid rgba(16,185,129,0.25)", borderRadius: "9999px", fontSize: "0.65rem", fontWeight: 700, padding: "0.2rem 0.6rem", whiteSpace: "nowrap" }}>
+                    Active Hostel
+                  </span>
+                </div>
+
+                <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "1rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                  <Input
+                    label="Room Number"
+                    placeholder="e.g. 204"
+                    value={roomNumber}
+                    onChange={(e) => setRoomNumber(e.target.value)}
+                  />
+                  <Input
+                    label="Phone Number"
+                    type="tel"
+                    placeholder="+880 1700-000000"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                  />
+                </div>
+
+                <Button
+                  type="button"
+                  variant="success"
+                  className="w-full justify-center mt-4"
+                  isLoading={submitting}
+                  onClick={handleJoin}
+                  leftIcon={<CheckCircle2 className="w-4 h-4" />}
+                >
+                  Submit Join Request
+                </Button>
+              </div>
+            )}
+          </div>
         )}
       </div>
     </div>

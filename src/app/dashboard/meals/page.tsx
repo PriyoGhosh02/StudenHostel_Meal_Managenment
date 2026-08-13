@@ -31,7 +31,7 @@ interface DailyTallySummary {
 }
 
 export default function MealsPage() {
-  const { currentHostel, isManager } = useHostel();
+  const { currentHostel, currentMember, isManager } = useHostel();
   const { user, profile, isFirebaseConfigured } = useAuth();
   const { monthName, monthId } = useCurrentMonth();
   const { t } = useTranslation();
@@ -51,6 +51,14 @@ export default function MealsPage() {
 
   const fetchMealsData = useCallback(async () => {
     if (!currentHostel || !monthId) return;
+
+    if (currentMember?.status === "pending") {
+      setMeals([]);
+      setMembers([]);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
       if (isFirebaseConfigured) {

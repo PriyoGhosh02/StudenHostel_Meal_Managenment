@@ -22,7 +22,7 @@ import { Plus, Check, X } from "lucide-react";
 import { toast } from "sonner";
 
 export default function DepositsPage() {
-  const { currentHostel, isManager } = useHostel();
+  const { currentHostel, currentMember, isManager } = useHostel();
   const { user, profile, isFirebaseConfigured } = useAuth();
   const { monthName, monthId, currency } = useCurrentMonth();
   const { t, currencySymbol } = useTranslation();
@@ -43,6 +43,14 @@ export default function DepositsPage() {
 
   const fetchDepositsData = useCallback(async () => {
     if (!currentHostel || !monthId) return;
+
+    if (currentMember?.status === "pending") {
+      setDeposits([]);
+      setMembers([]);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
       if (isFirebaseConfigured) {

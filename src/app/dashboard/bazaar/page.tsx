@@ -19,7 +19,7 @@ import { Plus } from "lucide-react";
 import { toast } from "sonner";
 
 export default function BazaarPage() {
-  const { currentHostel, isManager } = useHostel();
+  const { currentHostel, currentMember, isManager } = useHostel();
   const { user, profile, isFirebaseConfigured } = useAuth();
   const { monthName, monthId, currency } = useCurrentMonth();
   const { t, currencySymbol } = useTranslation();
@@ -36,6 +36,13 @@ export default function BazaarPage() {
 
   const fetchBazaarData = useCallback(async () => {
     if (!currentHostel || !monthId) return;
+
+    if (currentMember?.status === "pending") {
+      setSchedules([]);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
       if (isFirebaseConfigured) {
@@ -52,7 +59,7 @@ export default function BazaarPage() {
     } finally {
       setLoading(false);
     }
-  }, [currentHostel, monthId, isFirebaseConfigured]);
+  }, [currentHostel, monthId, isFirebaseConfigured, currentMember]);
 
   useEffect(() => {
     fetchBazaarData();

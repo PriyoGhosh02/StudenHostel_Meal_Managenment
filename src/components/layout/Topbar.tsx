@@ -31,18 +31,21 @@ import {
 export function Topbar() {
   const router = useRouter();
   const { user, profile, logout, isFirebaseConfigured, setDemoUser } = useAuth();
-  const { currentHostel, role, isManager } = useHostel();
+  const { currentHostel, currentMember, role, isManager } = useHostel();
   const { t } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
-    if (!currentHostel || !isFirebaseConfigured) return;
+    if (!currentHostel || !isFirebaseConfigured || !isManager || currentMember?.status !== "active") {
+      setUnreadCount(0);
+      return;
+    }
     const unsub = RequestService.subscribePendingRequestsCount(currentHostel.id, (cnt) => {
       setUnreadCount(cnt);
     });
     return () => unsub();
-  }, [currentHostel, isFirebaseConfigured]);
+  }, [currentHostel, isFirebaseConfigured, isManager, currentMember]);
 
   const handleLogout = async () => {
     await logout();

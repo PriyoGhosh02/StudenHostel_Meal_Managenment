@@ -22,7 +22,7 @@ import { Plus } from "lucide-react";
 import { toast } from "sonner";
 
 export default function ExpensesPage() {
-  const { currentHostel, isManager } = useHostel();
+  const { currentHostel, currentMember, isManager } = useHostel();
   const { user, profile, isFirebaseConfigured } = useAuth();
   const { monthName, monthId, currency } = useCurrentMonth();
   const { t, currencySymbol } = useTranslation();
@@ -42,6 +42,14 @@ export default function ExpensesPage() {
 
   const fetchExpensesData = useCallback(async () => {
     if (!currentHostel || !monthId) return;
+
+    if (currentMember?.status === "pending") {
+      setExpenses([]);
+      setMembers([]);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
       if (isFirebaseConfigured) {

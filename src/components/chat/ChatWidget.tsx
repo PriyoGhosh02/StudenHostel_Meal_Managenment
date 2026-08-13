@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { MessageSquare, X, Send, Users, User } from "lucide-react";
 
 export function ChatWidget() {
-  const { currentHostel } = useHostel();
+  const { currentHostel, currentMember } = useHostel();
   const { user, profile, isFirebaseConfigured } = useAuth();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -19,6 +19,8 @@ export function ChatWidget() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState("");
   const [sending, setSending] = useState(false);
+
+  if (!currentHostel || currentMember?.status !== "active") return null;
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 

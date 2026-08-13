@@ -29,7 +29,7 @@ interface LedgerTx {
 }
 
 export default function LedgerPage() {
-  const { currentHostel } = useHostel();
+  const { currentHostel, currentMember } = useHostel();
   const { isFirebaseConfigured } = useAuth();
   const { monthName, monthId, currency } = useCurrentMonth();
   const { t, currencySymbol } = useTranslation();
@@ -41,6 +41,15 @@ export default function LedgerPage() {
 
   const fetchLedgerData = useCallback(async () => {
     if (!currentHostel || !monthId) return;
+
+    if (currentMember?.status === "pending") {
+      setLedgerTxs([]);
+      setTotalInflow(0);
+      setTotalOutflow(0);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
       if (isFirebaseConfigured) {

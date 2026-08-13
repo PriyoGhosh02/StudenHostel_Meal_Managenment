@@ -21,7 +21,7 @@ import { Users, UserCheck, Copy, Check, CheckCircle2, XCircle, Plus, Trash2, Shi
 import { toast } from "sonner";
 
 export default function MembersPage() {
-  const { currentHostel, isManager, refreshHostel } = useHostel();
+  const { currentHostel, currentMember, isManager, refreshHostel } = useHostel();
   const { user, isFirebaseConfigured } = useAuth();
   const { t } = useTranslation();
   
@@ -65,6 +65,14 @@ export default function MembersPage() {
 
   const fetchData = useCallback(async () => {
     if (!currentHostel) return;
+
+    if (currentMember?.status === "pending") {
+      setMembers([]);
+      setRequests([]);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
       if (isFirebaseConfigured) {

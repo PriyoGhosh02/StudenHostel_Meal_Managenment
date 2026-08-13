@@ -25,7 +25,11 @@ service cloud.firestore {
     }
 
     function isHostelManager(hostelId) {
-      return isHostelMember(hostelId) && getMemberRole(hostelId) == 'manager';
+      return isHostelMember(hostelId) && (
+        getMemberRole(hostelId) == 'manager' ||
+        getMemberRole(hostelId) == 'owner' ||
+        getMemberRole(hostelId) == 'admin'
+      );
     }
 
     // -------------------------------------------------------------
@@ -48,7 +52,7 @@ service cloud.firestore {
 
       // Members Subcollection
       match /members/{memberId} {
-        allow read: if isHostelMember(hostelId);
+        allow read: if isHostelMember(hostelId) || isUser(memberId);
         allow create: if isAuthenticated() && (request.auth.uid == memberId || isHostelManager(hostelId));
         allow update: if isHostelManager(hostelId) || (isUser(memberId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['phone', 'roomNumber', 'studentId', 'university', 'department', 'updatedAt']));
         allow delete: if isHostelManager(hostelId);

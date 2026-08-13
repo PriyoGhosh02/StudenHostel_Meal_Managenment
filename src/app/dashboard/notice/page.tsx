@@ -18,7 +18,7 @@ import { Plus, Pin, Trash2, ThumbsUp, ThumbsDown, Check, X, Info } from "lucide-
 import { toast } from "sonner";
 
 export default function NoticePage() {
-  const { currentHostel, isManager } = useHostel();
+  const { currentHostel, currentMember, isManager } = useHostel();
   const { user, profile, isFirebaseConfigured } = useAuth();
   const { t } = useTranslation();
   const [modalOpen, setModalOpen] = useState(false);
@@ -54,7 +54,12 @@ export default function NoticePage() {
 
   const fetchNotices = useCallback(async () => {
     if (!currentHostel) return;
-    setLoading(true);
+
+    if (currentMember?.status === "pending") {
+      setNotices([]);
+      setLoading(false);
+      return;
+    }
     try {
       if (isFirebaseConfigured) {
         const data = await NoticeService.getNotices(currentHostel.id);

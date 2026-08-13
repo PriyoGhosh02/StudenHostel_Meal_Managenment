@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/Input";
 import { GoogleButton } from "./GoogleButton";
 import { toast } from "sonner";
 import { Mail, Lock, LogIn } from "lucide-react";
+import { UserService } from "@/lib/services/user.service";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -48,9 +49,20 @@ export function LoginForm() {
         router.push("/dashboard");
         return;
       }
-      await login(data.email, data.password);
-      toast.success("Welcome back!");
-      router.push("/dashboard");
+
+      // Login and get Firebase user
+      const firebaseUser = await login(data.email, data.password);
+
+      // Fetch Firestore profile to check if user already belongs to a hostel
+      const userProfile = await UserService.getUserProfile(firebaseUser.uid);
+
+      if (userProfile?.activeHostelId) {
+        toast.success(`Welcome back, ${userProfile.name || "Member"}!`);
+        router.push("/dashboard");
+      } else {
+        toast.success("Login successful! Let's set up your hostel.");
+        router.push("/onboarding");
+      }
     } catch (error: unknown) {
       toast.error((error as Error).message || "Failed to sign in. Please check your credentials.");
     } finally {

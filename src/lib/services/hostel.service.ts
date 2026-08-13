@@ -5,6 +5,7 @@ import {
   query,
   where,
   updateDoc,
+  deleteDoc,
   serverTimestamp,
   doc,
   collection,
@@ -149,6 +150,7 @@ export const HostelService = {
     userPhone?: string;
     hostelName?: string;
     hostelCode?: string;
+    roomNumber?: string;
   }): Promise<JoinRequest> {
     const reqRef = doc(collection(db, "hostels", params.hostelId, "joinRequests"));
     const joinReq: JoinRequest = {
@@ -164,6 +166,22 @@ export const HostelService = {
       createdAt: serverTimestamp(),
     };
     await setDoc(joinRequestDoc(params.hostelId, reqRef.id), joinReq);
+
+    // Create a pending member document in the members subcollection immediately
+    const pendingMember: HostelMember = {
+      uid: params.userId,
+      role: "member",
+      status: "pending",
+      phone: params.userPhone || "",
+      roomNumber: params.roomNumber || "",
+      joinedAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    };
+    await setDoc(memberDoc(params.hostelId, params.userId), pendingMember);
+
+    // Set user's activeHostelId immediately
+    await UserService.setActiveHostel(params.userId, params.hostelId);
+
     return joinReq;
   },
 
@@ -207,7 +225,15 @@ export const HostelService = {
         updatedAt: serverTimestamp(),
       };
       await setDoc(memberDoc(hostelId, reqData.userId), memberRecord);
-      await UserService.setActiveHostel(reqData.userId, hostelId);
+      
+      try {
+        await UserService.setActiveHostel(reqData.userId, hostelId);
+      } catch (err) {
+        console.warn("Failed to set active hostel on user profile (permission issue or custom rules):", err);
+      }
+    } else if (action === "rejected") {
+      // Delete the pending member record if request is rejected
+      await deleteDoc(memberDoc(hostelId, reqData.userId));
     }
   },
 
