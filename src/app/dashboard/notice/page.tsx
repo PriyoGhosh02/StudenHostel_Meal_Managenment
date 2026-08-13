@@ -14,18 +14,24 @@ import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Select } from "@/components/ui/Select";
-import { Plus, Pin, Trash2, ThumbsUp, ThumbsDown, Check, X, Info } from "lucide-react";
+import { Plus, Pin, Trash2, ThumbsUp, ThumbsDown, Check, X, Info, Calendar } from "lucide-react";
 import { toast } from "sonner";
+import { BazaarService } from "@/lib/services/bazaar.service";
+import { useCurrentMonth } from "@/hooks/use-current-month";
+import { BazaarSchedule } from "@/types/bazaar";
 
 export default function NoticePage() {
   const { currentHostel, currentMember, isManager } = useHostel();
   const { user, profile, isFirebaseConfigured } = useAuth();
-  const { t } = useTranslation();
+  const { t, currencySymbol } = useTranslation();
+  const { monthId } = useCurrentMonth();
+  
   const [modalOpen, setModalOpen] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [selectedNoticeForDetails, setSelectedNoticeForDetails] = useState<Notice | null>(null);
   const [loading, setLoading] = useState(true);
   const [notices, setNotices] = useState<Notice[]>([]);
+  const [bazaarSchedules, setBazaarSchedules] = useState<BazaarSchedule[]>([]);
 
   // Form states
   const [title, setTitle] = useState("");
@@ -82,9 +88,22 @@ export default function NoticePage() {
     }
   }, [currentHostel, isFirebaseConfigured]);
 
+  const fetchBazaarSchedule = useCallback(async () => {
+    if (!currentHostel || !monthId || currentMember?.status === "pending") return;
+    try {
+      if (isFirebaseConfigured) {
+        const data = await BazaarService.getBazaarForMonth(currentHostel.id, monthId);
+        setBazaarSchedules(data);
+      }
+    } catch (err) {
+      console.warn("Could not load bazaar for notices:", err);
+    }
+  }, [currentHostel, monthId, isFirebaseConfigured, currentMember]);
+
   useEffect(() => {
     fetchNotices();
-  }, [fetchNotices]);
+    fetchBazaarSchedule();
+  }, [fetchNotices, fetchBazaarSchedule]);
 
   const handlePublish = async () => {
     if (!title.trim() || !content.trim()) {
@@ -219,6 +238,15 @@ export default function NoticePage() {
     return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
   };
 
+  const userBazaarDuties = bazaarSchedules.filter((s) => {
+    const isAssignedId = s.assignedMemberIds?.includes(user?.uid || "");
+    const isAssignedName = s.assignedMemberNames?.some(
+      (name) => name.toLowerCase().includes(profile?.name?.toLowerCase() || "") ||
+               name.toLowerCase().includes(user?.displayName?.toLowerCase() || "")
+    );
+    return (isAssignedId || isAssignedName) && s.status === "scheduled";
+  }).sort((a, b) => a.date.localeCompare(b.date));
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -234,6 +262,46 @@ export default function NoticePage() {
           </Button>
         }
       />
+
+      {/* Personalized Bazaar Duty Notice Card */}
+      {userBazaarDuties.length > 0 ? (
+        <Card className="border-amber-200/60 dark:border-amber-900/35 bg-amber-50/15 dark:bg-amber-950/20 border">
+          <CardHeader className="pb-2">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-amber-500 animate-bounce" />
+              <CardTitle className="text-sm font-bold text-amber-800 dark:text-amber-300">
+                Your Scheduled Bazaar Duties
+              </CardTitle>
+            </div>
+            <CardDescription className="text-xs text-amber-700 dark:text-amber-400 mt-1">
+              You are assigned to the grocery bazaar on the following dates:
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pb-3">
+            <div className="flex flex-col gap-2">
+              {userBazaarDuties.map((duty) => (
+                <div key={duty.id} className="flex justify-between items-center text-xs bg-amber-500/10 p-2.5 rounded-lg border border-amber-500/20">
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">{duty.date}</span>
+                  <span className="font-mono text-amber-700 dark:text-amber-300 font-semibold">
+                    Allocated Budget: {currencySymbol} {duty.allocatedBudget.toLocaleString()}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="border-slate-200 dark:border-slate-850 bg-slate-50/50 dark:bg-slate-900/50 border">
+          <CardHeader className="py-3 flex items-center justify-between flex-row gap-2">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-slate-400 shrink-0" />
+              <CardDescription className="text-xs text-slate-500 dark:text-slate-450">
+                You have no upcoming bazaar duties scheduled for this month.
+              </CardDescription>
+            </div>
+          </CardHeader>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 gap-4">
         {loading ? (

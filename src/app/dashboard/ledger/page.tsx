@@ -103,7 +103,7 @@ export default function LedgerPage() {
           txs.push({
             id: e.id,
             type: "expense",
-            desc: e.title,
+            desc: `${e.title} - ${e.category.toUpperCase()}`,
             amount: `-${e.amount.toLocaleString()}`,
             rawAmount: -e.amount,
             date: e.date,

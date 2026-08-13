@@ -438,21 +438,29 @@ export default function DashboardPage() {
       )}
 
       {/* Notice Banner */}
-      <div className="p-4 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-900/60 dark:to-slate-850/60 border border-blue-200/80 dark:border-slate-800 flex items-start gap-3 shadow-2xs">
+      <div className="p-4 rounded-xl bg-blue-50 dark:bg-slate-900 border border-blue-200/80 dark:border-slate-800 flex items-start gap-3 shadow-2xs">
         <div className="p-2 rounded-lg bg-blue-600 text-white shrink-0">
           <Bell className="w-4 h-4" />
         </div>
+
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">Hostel Notice: Meal Locking Schedule</h4>
-            <Badge variant="primary" size="sm">Active</Badge>
+            <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+              Hostel Notice: Meal Locking Schedule
+            </h4>
+            <Badge variant="primary" size="sm">
+              Active
+            </Badge>
           </div>
+
           <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
-            Please submit your dinner meal changes before 4:00 PM daily. All meal rates are auto-calculated from logged grocery bills.
+            Please submit your dinner meal changes before 4:00 PM daily. All meal
+            rates are auto-calculated from logged grocery bills.
           </p>
         </div>
+
         <Link href="/dashboard/notice">
-          <Button variant="ghost" size="sm" className="text-xs shrink-0">
+          <Button variant="ghost" size="sm" className="text-xs bg-blue-600 shrink-0">
             View All
           </Button>
         </Link>
