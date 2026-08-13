@@ -378,11 +378,11 @@ export default function DashboardPage() {
     <div className="space-y-6">
       {/* Page Header */}
       <PageHeader
-        title={currentHostel?.name || "Hostel Dashboard"}
-        description={`Active Month: ${monthName || "Current Month"} • Multi-Tenant Mess Management`}
+        title={currentHostel?.name || t("hostel_dashboard")}
+        description={`${t("active_month")}: ${monthName || t("current_month")} • ${t("mess_management")}`}
         badge={
           <Badge variant={((role as string) === "owner" || (role as string) === "admin" || (role as string) === "manager") ? "manager" : "member"} size="md">
-            {role ? (((role as string) === "owner" || (role as string) === "admin" || (role as string) === "manager") ? "MANAGER" : "MEMBER") : "MEMBER"}
+            {role ? (((role as string) === "owner" || (role as string) === "admin" || (role as string) === "manager") ? t("role_manager") : t("role_member")) : t("role_member")}
           </Badge>
         }
         action={
@@ -398,7 +398,7 @@ export default function DashboardPage() {
                 }}
                 leftIcon={<UtensilsCrossed className="w-3.5 h-3.5" />}
               >
-                Add Daily Meal
+                {t("add_daily_meal")}
               </Button>
               <Button
                 size="sm"
@@ -407,7 +407,7 @@ export default function DashboardPage() {
                 onClick={() => setQuickActionModal("deposit")}
                 leftIcon={<Wallet className="w-3.5 h-3.5" />}
               >
-                {isManager ? "Record Deposit" : "Request Deposit"}
+                {isManager ? t("record_deposit") : t("request_deposit")}
               </Button>
               <Button
                 size="sm"
@@ -419,7 +419,7 @@ export default function DashboardPage() {
                 }}
                 leftIcon={<Plus className="w-3.5 h-3.5" />}
               >
-                {isManager ? "Log Expense" : "Request Expense"}
+                {isManager ? t("log_expense") : t("request_expense")}
               </Button>
             </div>
           ) : undefined
@@ -432,9 +432,9 @@ export default function DashboardPage() {
             ⚠️
           </div>
           <div>
-            <h3 className="font-bold text-amber-800 dark:text-amber-300">Awaiting Manager Approval</h3>
-            <p className="text-xs text-amber-700 dark:text-amber-400/90 mt-1">
-              Your request to join <strong>{currentHostel?.name}</strong> has been submitted. Until the manager approves your request, you are in view-only pending status, and your calculations will display as 0.
+            <h3 className="font-bold text-amber-800 dark:text-amber-300">{t("awaiting_manager_approval")}</h3>
+            <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
+              {t("join_request_submitted")} (<strong>{currentHostel?.name}</strong>)
             </p>
           </div>
         </div>
@@ -496,20 +496,20 @@ export default function DashboardPage() {
           <Card className="border-slate-200/80">
             <CardHeader className="flex flex-row items-center justify-between pb-3">
               <div>
-                <CardTitle className="text-base">Member Balances ({monthName})</CardTitle>
-                <CardDescription>Live debit & surplus calculations</CardDescription>
+                <CardTitle className="text-base">{t("member_balances")} ({monthName})</CardTitle>
+                <CardDescription>{t("live_calculations")}</CardDescription>
               </div>
               <Link href="/dashboard/members">
                 <Button variant="ghost" size="sm" rightIcon={<ArrowUpRight className="w-3.5 h-3.5" />}>
-                  All Members
+                  {t("all_members")}
                 </Button>
               </Link>
             </CardHeader>
             <CardContent className="p-0">
               {loading ? (
-                <div className="text-center py-8 text-slate-500">Loading balances...</div>
+                <div className="text-center py-8 text-slate-500">{t("loading_balances")}</div>
               ) : memberSummaries.length === 0 ? (
-                <div className="text-center py-8 text-slate-500">No members registered in this hostel yet.</div>
+                <div className="text-center py-8 text-slate-500">{t("no_members_registered")}</div>
               ) : (
                 <>
                   {/* Table View for larger screens */}
@@ -517,11 +517,11 @@ export default function DashboardPage() {
                     <Table className="border-0 rounded-none shadow-none">
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Member</TableHead>
+                          <TableHead>{t("members")}</TableHead>
                           <TableHead>Room</TableHead>
-                          <TableHead>Meals</TableHead>
-                          <TableHead>Deposited</TableHead>
-                          <TableHead>Net Balance</TableHead>
+                          <TableHead>{t("meals")}</TableHead>
+                          <TableHead>{t("deposited")}</TableHead>
+                          <TableHead>{t("current_balance")}</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -580,11 +580,11 @@ export default function DashboardPage() {
                               <span className="font-mono font-semibold text-slate-800 dark:text-slate-200">{m.room || "N/A"}</span>
                             </div>
                             <div className="bg-slate-50 dark:bg-slate-800/40 p-2 rounded-lg">
-                              <span className="block text-[9px] text-slate-400 dark:text-slate-500 uppercase tracking-wider">Meals</span>
+                              <span className="block text-[9px] text-slate-400 dark:text-slate-500 uppercase tracking-wider">{t("meals")}</span>
                               <span className="font-semibold text-slate-800 dark:text-slate-200">{m.meals}</span>
                             </div>
                             <div className="bg-slate-50 dark:bg-slate-800/40 p-2 rounded-lg">
-                              <span className="block text-[9px] text-slate-400 dark:text-slate-500 uppercase tracking-wider">Deposited</span>
+                              <span className="block text-[9px] text-slate-400 dark:text-slate-500 uppercase tracking-wider">{t("deposited")}</span>
                               <span className="font-semibold text-slate-800 dark:text-slate-200">{currencySymbol}{m.deposited.toLocaleString()}</span>
                             </div>
                           </div>
@@ -604,23 +604,23 @@ export default function DashboardPage() {
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
                 <ShoppingCart className="w-4 h-4 text-amber-600" />
-                Upcoming Bazaar Duties
+                {t("upcoming_bazaar_duties")}
               </CardTitle>
-              <CardDescription>Scheduled shopping rotations</CardDescription>
+              <CardDescription>{t("scheduled_rotations")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3 pt-0">
               {loading ? (
-                <div className="text-center py-4 text-slate-500 text-xs">Loading duties...</div>
+                <div className="text-center py-4 text-slate-500 text-xs">{t("loading_duties")}</div>
               ) : upcomingBazaars.length === 0 ? (
                 <div className="text-center py-6 text-slate-500 text-xs bg-slate-50 border border-dashed border-slate-200 rounded-xl">
-                  No upcoming bazaar duties.
+                  {t("no_upcoming_duties")}
                 </div>
               ) : (
                 upcomingBazaars.map((b) => (
                   <div key={b.id} className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
                     <div className="flex items-center justify-between text-xs">
                       <span className="font-bold text-slate-900">{b.date}</span>
-                      <Badge variant="warning" size="sm">Scheduled</Badge>
+                      <Badge variant="warning" size="sm">{t("status").toUpperCase()}</Badge>
                     </div>
                     <p className="text-xs text-slate-600">Assigned: {b.assignedMemberNames?.join(" & ") || "Unassigned"}</p>
                     <p className="text-[11px] text-slate-400">Allocated Budget: {currencySymbol} {b.allocatedBudget.toLocaleString()}</p>
@@ -630,7 +630,7 @@ export default function DashboardPage() {
 
               <Link href="/dashboard/bazaar" className="block pt-2">
                 <Button variant="outline" size="sm" className="w-full justify-center">
-                  Manage Bazaar Schedule
+                  {t("manage_bazaar_schedule")}
                 </Button>
               </Link>
             </CardContent>
@@ -641,10 +641,10 @@ export default function DashboardPage() {
             <CardContent className="p-4 space-y-2">
               <div className="flex items-center gap-2 text-blue-900 dark:text-blue-400">
                 <ShieldCheck className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                <h4 className="font-bold text-xs">Hostel Code for Joining</h4>
+                <h4 className="font-bold text-xs">{t("hostel_code_joining")}</h4>
               </div>
               <p className="text-xs text-slate-600 dark:text-slate-400">
-                Share this code with fellow roommates to submit join requests:
+                {t("share_code_roommates")}
               </p>
               <div className="p-2 rounded-lg bg-white dark:bg-slate-800 border border-blue-200 dark:border-slate-700 text-center font-mono font-bold text-blue-700 dark:text-blue-400 text-sm">
                 {currentHostel?.code || "HST-X7K92"}
@@ -660,16 +660,16 @@ export default function DashboardPage() {
         onClose={() => setQuickActionModal(null)}
         title={
           quickActionModal === "meal"
-            ? "Record Daily Meal"
+            ? t("add_meal_record")
             : quickActionModal === "deposit"
-              ? "Submit Deposit Record"
-              : "Log New Expense"
+              ? t("record_member_deposit")
+              : t("log_hostel_expense")
         }
-        description="Quick operation entry for active month"
+        description={t("live_calculations")}
       >
         <div className="space-y-4">
           <Input
-            label="Date"
+            label={t("select_meal_date")}
             type="date"
             value={quickDate}
             onChange={(e) => setQuickDate(e.target.value)}
@@ -679,7 +679,7 @@ export default function DashboardPage() {
             <>
               {isManager && members.length > 0 && (
                 <Select
-                  label="Select Member"
+                  label={t("select_member")}
                   value={quickTargetUserId}
                   onChange={(e) => setQuickTargetUserId(e.target.value)}
                   options={members.map((m) => ({ value: m.uid, label: `${m.name} (Room ${m.roomNumber || "TBD"})` }))}
@@ -715,35 +715,35 @@ export default function DashboardPage() {
             <>
               {isManager && members.length > 0 && (
                 <Select
-                  label="Select Member"
+                  label={t("select_member")}
                   value={quickTargetUserId}
                   onChange={(e) => setQuickTargetUserId(e.target.value)}
                   options={members.map((m) => ({ value: m.uid, label: `${m.name} (Room ${m.roomNumber || "TBD"})` }))}
                 />
               )}
               <Input
-                label={`Amount (${currencySymbol})`}
+                label={`${t("deposit_amount")} (${currencySymbol})`}
                 type="number"
                 placeholder="e.g. 3000"
                 value={quickAmount}
                 onChange={(e) => setQuickAmount(e.target.value)}
               />
               <Select
-                label="Payment Method"
+                label={t("payment_method")}
                 value={quickMethod}
                 onChange={(e) => setQuickMethod(e.target.value as PaymentMethod)}
                 options={[
-                  { value: "cash", label: "Cash" },
-                  { value: "bkash", label: "bKash" },
-                  { value: "nagad", label: "Nagad" },
+                  { value: "cash", label: t("cash") },
+                  { value: "bkash", label: t("bkash") },
+                  { value: "nagad", label: t("nagad") },
                   { value: "rocket", label: "Rocket" },
-                  { value: "bank", label: "Bank Transfer" },
+                  { value: "bank", label: t("bank_transfer") },
                   { value: "upi", label: "UPI" },
-                  { value: "other", label: "Other" },
+                  { value: "other", label: t("other") },
                 ]}
               />
               <Input
-                label="Tx ID / Ref (Optional)"
+                label={t("reference_note")}
                 placeholder="e.g. TRX109234"
                 value={quickTxId}
                 onChange={(e) => setQuickTxId(e.target.value)}
@@ -760,24 +760,24 @@ export default function DashboardPage() {
                 onChange={(e) => setQuickTitle(e.target.value)}
               />
               <Input
-                label={`Amount (${currencySymbol})`}
+                label={`${t("deposit_amount")} (${currencySymbol})`}
                 type="number"
                 placeholder="e.g. 1500"
                 value={quickAmount}
                 onChange={(e) => setQuickAmount(e.target.value)}
               />
               <Select
-                label="Category"
+                label={t("expense_category")}
                 value={quickCategory}
                 onChange={(e) => setQuickCategory(e.target.value as ExpenseCategory)}
                 options={[
-                  { value: "bazaar", label: "Bazaar (Meal Cost)" },
-                  { value: "utility", label: "Shared Utilities" },
-                  { value: "cook_salary", label: "Cook Salary" },
+                  { value: "bazaar", label: t("grocery_bazaar") },
+                  { value: "utility", label: t("utilities") },
+                  { value: "cook_salary", label: t("cook_maid_salary") },
                   { value: "gas", label: "Gas Bill" },
                   { value: "internet", label: "Internet Bill" },
                   { value: "maintenance", label: "Maintenance" },
-                  { value: "other", label: "Other" },
+                  { value: "other", label: t("other") },
                 ]}
               />
             </>

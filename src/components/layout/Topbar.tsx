@@ -152,7 +152,7 @@ export function Topbar() {
           <Link
             href={isManager ? "/dashboard/manager" : "/dashboard/notice"}
             className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors relative"
-            title="Notices & Notifications"
+            title={t("notices", "Notices & Notifications")}
           >
             <Bell className="w-4 h-4" />
             {unreadCount > 0 ? (
@@ -216,7 +216,7 @@ export function Topbar() {
               </Link>
               <Link href="/onboarding">
                 <DropdownItem icon={<PlusCircle className="w-4 h-4" />}>
-                  Create / Switch Hostel
+                  {t("create_switch_hostel", "Create / Switch Hostel")}
                 </DropdownItem>
               </Link>
             </div>
@@ -266,7 +266,7 @@ export function Topbar() {
                     <button
                       type="button"
                       onClick={copyCode}
-                      title="Click to copy hostel code"
+                      title={t("click_copy_code", "Click to copy hostel code")}
                       className="flex items-center gap-1 text-[11px] font-mono text-slate-500 hover:text-blue-600 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded transition-colors border border-transparent dark:border-slate-700"
                     >
                       <span>{currentHostel.code}</span>
@@ -303,7 +303,7 @@ export function Topbar() {
         {/* Navigation Links */}
         <div className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
           <div className="px-3 pb-2 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-            Management
+            {t("management", "Management")}
           </div>
           {navItems.map((item) => {
             const isActive = item.exact

@@ -62,7 +62,7 @@ export function Sidebar() {
     { href: "/dashboard/bazaar", label: t("bazaar"), icon: ShoppingCart },
     { href: "/dashboard/ledger", label: t("ledger"), icon: BookOpenText },
     { href: "/dashboard/notice", label: t("notices"), icon: Bell },
-    { href: "/dashboard/chat", label: "Live Chat", icon: MessageSquare },
+    { href: "/dashboard/chat", label: t("live_chat", "Live Chat"), icon: MessageSquare },
     { href: "/dashboard/reports/current", label: t("reports"), icon: FileBarChart2 },
     { href: "/dashboard/months/manage", label: t("months"), icon: CalendarRange },
     { href: "/dashboard/members", label: t("members"), icon: Users },
@@ -87,7 +87,7 @@ export function Sidebar() {
                 <button
                   type="button"
                   onClick={copyCode}
-                  title="Click to copy hostel code"
+                  title={t("click_copy_code", "Click to copy hostel code")}
                   className="flex items-center gap-1 text-[11px] font-mono text-slate-500 hover:text-blue-600 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded transition-colors border border-transparent dark:border-slate-700"
                 >
                   <span>{currentHostel.code}</span>
@@ -115,7 +115,7 @@ export function Sidebar() {
       {/* Navigation Links */}
       <div className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
         <div className="px-3 pb-2 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-          Management
+          {t("management", "Management")}
         </div>
         {navItems.map((item) => {
           const isActive = item.exact
