@@ -7,7 +7,7 @@
 
 HostelMaster is a full-featured, multi-tenant SaaS application designed to digitize student hostels, shared mess halls, and bachelor co-living residences. It eliminates messy paper logs, inaccurate spreadsheets, and payment disputes by automating meal calculations, expense distributions, and grocery schedules.
 
-![HostelMaster Dashboard Banner](./public/banner.jpg)
+![HostelMaster Dashboard Banner](<img width="1918" height="912" alt="Screenshot_1" src="https://github.com/user-attachments/assets/be8f98d5-7638-4bc3-8b72-d2338b3115ca" />)
 
 ---
 
